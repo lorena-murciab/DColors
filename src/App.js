@@ -41,29 +41,8 @@ const App = () => {
   return (
     <Router>
       <div>
-        {/* Header */}
-        <header className="bg-dark text-light py-3 fixed-top"
-          style={{
-            backgroundColor: "rgba(0, 0, 0, 0.6)", // Fondo negro con 60% de opacidad
-          }}
-        >
-          <div className="container d-flex justify-content-between align-items-center">
-            <Link to="/">
-              <img src="/logo_inicio1.png" alt="D'Colors Logo" className="img-fluid" style={{ height: "50px" }} />
-            </Link>
-            <nav>
-              <Link to="/gallery" className="btn btn-outline-light mx-2">
-                Galería
-              </Link>
-              {/* Botón de cerrar sesión solo si el usuario está autenticado */}
-              {user && (
-                <button className="btn btn-danger mx-2" onClick={() => signOut(auth) && setUser(null)}>
-                  Cerrar sesión
-                </button>
-              )}
-            </nav>
-          </div>
-        </header>
+        {/* Header dinámico */}
+        <Header user={user} setUser={setUser} />
 
         {/* Rutas */}
         <main className="pt-5" style={{ paddingTop: "80px" }}>

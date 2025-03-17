@@ -117,7 +117,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 50vh;
+  height: 60vh; /* Más alto para impactar */
   background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8));
   color: white;
   display: flex;
@@ -125,11 +125,13 @@
   align-items: center;
   flex-direction: column;
   text-align: center;
+  transition: opacity 0.6s ease-in-out;
 }
 
 .big-logo {
-  height: 80px;
+  height: 100px;
   margin-bottom: 10px;
+  animation: fadeInDown 1s ease-out; /* Animación de entrada */
 }
 
 /* Header minimalista fijo */
@@ -139,19 +141,28 @@
   left: 0;
   width: 100%;
   height: 60px;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px); /* Efecto de vidrio */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  transition: top 0.3s ease-in-out;
+  transition: top 0.4s ease-in-out, background 0.3s;
 }
 
 .mini-header.show {
   top: 0;
+  background: rgba(0, 0, 0, 0.9);
 }
 
-.mini-logo {
-  height: 40px;
+/* Animación */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
 
 
 
