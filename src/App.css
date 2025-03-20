@@ -111,58 +111,89 @@
   backdrop-filter: blur(10px);
 }
 
-/* Header inicial grande */
-.big-header {
-  position: absolute;
-  top: 0;
-  left: 0;
+/* Header grande */
+.large-header {
   width: 100%;
-  height: 60vh; /* Más alto para impactar */
-  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8));
-  color: white;
+  height: 120px; /* Sección completa en pantalla */
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
-  text-align: center;
-  transition: opacity 0.6s ease-in-out;
+  background: rgba(0, 0, 0, 0.8);
+  position: relative;
 }
 
-.big-logo {
-  height: 100px;
-  margin-bottom: 10px;
-  animation: fadeInDown 1s ease-out; /* Animación de entrada */
+.large-logo {
+  width: 150px;
 }
 
-/* Header minimalista fijo */
-.mini-header {
+/* Header pequeño (sticky) */
+.small-header {
   position: fixed;
-  top: -70px;
+  top: 0;
   left: 0;
   width: 100%;
   height: 60px;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(10px); /* Efecto de vidrio */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  transition: top 0.4s ease-in-out, background 0.3s;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  transition: transform 0.3s ease-in-out;
 }
 
-.mini-header.show {
-  top: 0;
-  background: rgba(0, 0, 0, 0.9);
+.small-logo {
+  width: 50px;
 }
 
-/* Animación */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.small-header nav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 10px;
 }
 
 
 
+/* Estilos para la galería */
+.image-container {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.image-container img {
+  transition: transform 0.3s ease;
+}
+
+.image-container:hover img {
+  transform: scale(1.05);
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.image-container:hover .overlay {
+  opacity: 1;
+}
+
+.size, .category {
+  margin: 0;
+  font-size: 14px;
+}
+
+.size {
+  font-weight: bold;
+}
+
+.category {
+  font-style: italic;
+}

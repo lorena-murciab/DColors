@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
-import { auth, onAuthStateChanged, signOut  } from "./firebaseConfig"; // Escuchar cambios de autenticación
+// import { auth, onAuthStateChanged } from "./firebaseConfig"; // Escuchar cambios de autenticación
 import Auth from "./components/Auth";
 import Gallery from "./components/ImageGallery";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { IoIosArrowUp } from "react-icons/io";
 import Header from "./components/Header"; // Nuevo Header dinámico
-
+import { FaWhatsapp, FaPhone } from "react-icons/fa"; // Importar iconos
 
 
 const App = () => {
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
 
   // Mostrar botón de scroll al llegar a cierta altura
@@ -30,26 +30,30 @@ const App = () => {
   }
 
 
-  // Detectar si hay una sesión activa
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser); // Guarda el usuario si está autenticado
-    });
-    return () => unsubscribe(); // Limpieza al desmontar
-  }, []);
+  // Se comenta el useEffect que maneja la autenticación
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+  //     setUser(currentUser); // Guarda el usuario si está autenticado
+  //   });
+  //   return () => unsubscribe(); // Limpieza al desmontar
+  // }, []);
 
   return (
     <Router>
       <div>
         {/* Header dinámico */}
-        <Header user={user} setUser={setUser} />
+        {/* 🔹 Se comenta la prop "user" porque el estado del usuario está desactivado */}
+        <Header /* user={user} setUser={setUser} */ />
 
         {/* Rutas */}
         <main className="pt-5" style={{ paddingTop: "80px" }}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/gallery" element={<Gallery />} />
-            <Route path="/admin" element={<Auth user={user} setUser={setUser} />} />
+
+            {/* 🔹 Se comenta la prop "user" en la ruta de administración */}
+            <Route path="/admin" element={<Auth /* user={user} setUser={setUser} */ />} />
+            
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
@@ -78,9 +82,9 @@ const Footer = () => {
   return (
     <footer className={`text-light text-center py-3 ${isAuthPage ? "fixed-bottom" : ""}`}
       style={{
-        backgroundColor: isAuthPage ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.85)", // Fondo transparente solo en Auth
-        }}
-      >
+        backgroundColor: isAuthPage ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.85)",
+      }}
+    >
       <p>&copy; 2025 D'Colors. Todos los derechos reservados.</p>
     </footer>
   );
@@ -113,10 +117,27 @@ const Home = () => (
     </section>
 
     {/* Contact Section */}
-    <section id="contact" className="container my-5">
-      <h2 className="text-center">Contacto</h2>
-      <p className="text-center">Para consultas, contáctanos en contacto@dcolors.com</p>
+    <section id="contact" className="container my-5 text-center">
+      <h2 className="mb-4">Contáctanos</h2>
+      <p className="text-muted">Estamos disponibles para responder cualquier consulta.</p>
+
+      <div className="d-flex flex-column flex-md-row justify-content-center gap-4 mt-4">
+
+        {/* WhatsApp Contact */}
+        <a href="https://wa.me/+34692688615" target="_blank" rel="noopener noreferrer"
+          className="text-dark text-decoration-none d-flex align-items-center gap-2">
+          <FaWhatsapp size={20} />
+          <span>Escríbenos por WhatsApp</span>
+        </a>
+
+        {/* Teléfono Contact */}
+        <div className="text-dark d-flex align-items-center gap-2">
+          <FaPhone size={20} />
+          <span>Llámanos ahora: <strong>+34 692 688 615</strong></span>
+        </div>
+      </div>
     </section>
+
   </>
 );
 
