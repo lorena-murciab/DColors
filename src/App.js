@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from "react-router-dom"; // Para manejar rutas
 // import { auth, onAuthStateChanged } from "./firebaseConfig"; // Escuchar cambios de autenticación
-import Auth from "./components/Auth";
+import Auth from "./components/LoginAdmin";
 import Gallery from "./components/ImageGallery";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { IoIosArrowUp } from "react-icons/io";
-import Header from "./components/Header"; // Nuevo Header dinámico
+import Header from "./components/Header"; // Header dinámico
 import { FaWhatsapp, FaPhone } from "react-icons/fa"; // Importar iconos
 
 
 const App = () => {
   // const [user, setUser] = useState(null);
-  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(false); // Estado para mostrar botón de scroll
 
-  // Mostrar botón de scroll al llegar a cierta altura
+  // Botón de scroll rápido al llegar a cierta altura
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollButton(window.scrollY > 300);
@@ -77,10 +77,10 @@ const App = () => {
 // Footer condicional
 const Footer = () => {
   const location = useLocation();
-  const isAuthPage = location.pathname === "/admin";
+  const isAuthPage = location.pathname === "/admin"; // Verifica si está en la página de autenticación para aplicar estilos
 
   return (
-    <footer className={`text-light text-center py-3 ${isAuthPage ? "fixed-bottom" : ""}`}
+    <footer className={`text-light text-center py-3 ${isAuthPage ? "fixed-bottom" : ""}`} // Footer fijo en la página de autenticación
       style={{
         backgroundColor: isAuthPage ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.85)",
       }}

@@ -43,8 +43,7 @@ const Header = ({ /* user */ }) => {
             <a href="/">Inicio</a>
             <a href="/gallery">Galería</a>
             <a href="/about">Sobre Nosotros</a>
-            {/* {user && <a href="/profile">Mi Perfil</a>} */} {/* Enlace opcional para el usuario autenticado */}
-            {/* {user ? <button onClick={logout}>Cerrar Sesión</button> : <a href="/login">Iniciar Sesión</a>} */}
+            {/* {user ? <button onClick={logout}>Cerrar Sesión</button> */}
           </nav>
         </div>
       )}

@@ -42,6 +42,29 @@ const AdminPanel = ({ /* user */ }) => { // 🔹 Se comenta la recepción del us
   };
   */
 
+  // Función de modificación de un cuadro
+  // 🔹 Se comenta la función de modificación de un cuadro
+  /*
+  const handleEditPainting = async (id) => {
+    const painting = paintings.find((painting) => painting.id === id);
+    const newTitle = prompt("Introduce el nuevo título", painting.title);
+    const newCategory = prompt("Introduce la nueva categoría", painting.category);
+    const newSize = prompt("Introduce el nuevo tamaño", painting.size);
+    const newImageUrl = prompt("Introduce la nueva URL de la imagen", painting.imageUrl);
+
+    if (newTitle && newImageUrl) {
+      await updateDoc(doc(db, "paintings", id), {
+        title: newTitle,
+        category: newCategory,
+        size: newSize,
+        imageUrl: newImageUrl,
+      });
+      alert("Cuadro modificado correctamente.");
+      setPaintings(paintings.map((painting) => (painting.id === id ? { ...painting, title: newTitle, category: newCategory, size: newSize, imageUrl: newImageUrl } : painting)));
+    }
+  };
+  */
+
   return (
     <div className="container my-5">
       <h2>Panel de Administración</h2>

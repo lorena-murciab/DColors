@@ -19,6 +19,7 @@ const Auth = ({ user, setUser }) => {
       return;
     } 
 
+    // Iniciar sesión
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       console.log("Usuario autenticado:", userCredential.user);
@@ -52,6 +53,7 @@ const Auth = ({ user, setUser }) => {
           className="text-white p-4 text-center w-100"
           style={{ maxWidth: "700px", background: "rgba(0, 0, 0, 0.34)", borderRadius: "25x", backdropFilter: "blur(3px)" }}
         >
+          {/* Si hay usuario le da la bienvenida, sino muestra el formulario */}
           {user ? (
             <>
               <p className="mb-3">¡Bienvenido, {user.email}!</p>
