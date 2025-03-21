@@ -1,49 +1,75 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-// import { signOut } from "../firebaseConfig"; // 🔹 Se comenta la importación de autenticación
+import { useAuth } from "./AuthContext"; // Importamos el contexto de autenticación
+import { auth, signOut } from "../firebaseConfig"; // Importamos la función de cierre de sesión
 import "../App.css";
 
-const Header = ({ /* user */ }) => {
+const Header = () => {
+  const { user } = useAuth(); // Estado global del usuario
   const [showSmallHeader, setShowSmallHeader] = useState(false);
-  const location = useLocation(); // Detecta cambios de ruta
+  const location = useLocation();
 
+  // Manejo del scroll para mostrar/ocultar el header pequeño
   useEffect(() => {
     const handleScroll = () => {
-      // Detecta si el usuario ha pasado el header grande
-      const headerHeight = document.getElementById("large-header")?.offsetHeight || 120; // Altura del header grande
+      const headerHeight = document.getElementById("large-header")?.offsetHeight || 120;
       setShowSmallHeader(window.scrollY > headerHeight);
     };
 
     window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Ejecutarlo una vez para ajustar el estado al cargar la página
+    handleScroll();
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Restablece el estado si el usuario vuelve a la página principal
   useEffect(() => {
-    // Restablece el estado si el usuario vuelve a la página principal
     if (location.pathname === "/") {
-      window.scrollTo(0, 0); // Asegurar que al volver se reinicie
+      window.scrollTo(0, 0);
       setShowSmallHeader(false);
     }
   }, [location]);
 
+  // Función para cerrar sesión
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      console.log("Sesión cerrada");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
   return (
     <>
-      {/* Header grande (como una sección) */}
+      {/* Header grande */}
       <div id="large-header" className="large-header">
         <img src="/logo_inicio1.png" alt="Logo" className="large-logo" />
+        <nav>
+          <Link to="/">Inicio</Link>
+          <Link to="/gallery">Galería</Link>
+          <Link to="/about">Sobre Nosotros</Link>
+          {user ? (
+            <button onClick={logout} className="logout-btn">Cerrar Sesión</button>
+          ) : (
+            <Link to="/login">Admin</Link>
+          )}
+        </nav>
       </div>
 
-      {/* Header pequeño (fijo en la parte superior) */}
+      {/* Header pequeño (fijo arriba cuando haces scroll) */}
       {showSmallHeader && (
         <div className="small-header">
           <img src="/logo_inicio1.png" alt="Logo" className="small-logo" />
           <nav>
-            <a href="/">Inicio</a>
-            <a href="/gallery">Galería</a>
-            <a href="/about">Sobre Nosotros</a>
-            {/* {user ? <button onClick={logout}>Cerrar Sesión</button> */}
+            <Link to="/">Inicio</Link>
+            <Link to="/gallery">Galería</Link>
+            <Link to="/about">Sobre Nosotros</Link>
+            {user ? (
+              <button onClick={logout} className="logout-btn">Cerrar Sesión</button>
+            ) : (
+              <Link to="/login">Admin</Link>
+            )}
           </nav>
         </div>
       )}

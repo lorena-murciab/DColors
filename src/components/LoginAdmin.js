@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { auth, signInWithEmailAndPassword } from "../firebaseConfig";
-import { /*useNavigate,*/ Link } from "react-router-dom";
+import { useAuth } from "./AuthContext"; // Importar el hook de autenticación
+import { /* useNavigate, */ Link } from "react-router-dom";
 import "../App.css";
 
 
-const Auth = ({ user, setUser }) => {
+const LoginAdmin = () => {
+  const { user } = useAuth(); // Obtenemos el usuario del contexto
+  // const navigate = useNavigate();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [inputError, setInputError] = useState(false); // Nuevo estado para el borde rojo
-  // const navigate = useNavigate(); // Para redirigir al admin
+  const [inputError, setInputError] = useState(false);
 
 
   const login = async () => {
@@ -21,19 +24,12 @@ const Auth = ({ user, setUser }) => {
 
     // Iniciar sesión
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log("Usuario autenticado:", userCredential.user);
-      setUser(userCredential.user);
-      //navigate("/"); // Redirige después del login
-      setError("");
-      setInputError(false); // Resetea el borde si el login es exitoso
-      // Limpiar campos
-      setEmail("");
-      setPassword("");
+      await signInWithEmailAndPassword(auth, email, password);
+      // navigate("/gallery"); // Redirige tras iniciar sesión
     } catch (err) {
       console.error("Error en login:", err);
       setError("Credenciales incorrectas.");
-      setInputError(true); // Activa el borde rojo
+      setInputError(true);
     }
   };
 
@@ -53,6 +49,7 @@ const Auth = ({ user, setUser }) => {
           className="text-white p-4 text-center w-100"
           style={{ maxWidth: "700px", background: "rgba(0, 0, 0, 0.34)", borderRadius: "25x", backdropFilter: "blur(3px)" }}
         >
+
           {/* Si hay usuario le da la bienvenida, sino muestra el formulario */}
           {user ? (
             <>
@@ -103,4 +100,4 @@ const Auth = ({ user, setUser }) => {
   
 };
 
-export default Auth;
+export default LoginAdmin;

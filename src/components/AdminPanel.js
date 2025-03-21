@@ -1,73 +1,86 @@
 import React, { useState, useEffect } from "react";
-// import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, db } from "../firebaseConfig"; // 🔹 Se comenta la importación de Firestore
 import { useNavigate } from "react-router-dom";
+import { db } from "../firebaseConfig";
+import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 
-const AdminPanel = ({ /* user */ }) => { // 🔹 Se comenta la recepción del usuario
+const AdminPanel = () => {
   const [paintings, setPaintings] = useState([]);
   const [newPainting, setNewPainting] = useState({ title: "", category: "", size: "", imageUrl: "" });
   const navigate = useNavigate();
 
-  // 🔹 Se comenta la función de carga de cuadros desde Firestore
-  /*
+  // Cargar cuadros desde Firestore
   useEffect(() => {
     const fetchPaintings = async () => {
-      const querySnapshot = await getDocs(collection(db, "paintings"));
-      const paintingsList = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setPaintings(paintingsList);
+      try {
+        const querySnapshot = await getDocs(collection(db, "paintings"));
+        const paintingsList = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setPaintings(paintingsList);
+      } catch (error) {
+        console.error("Error al cargar los cuadros:", error);
+      }
     };
     fetchPaintings();
   }, []);
-  */
 
-  // 🔹 Se comenta la función de añadir un cuadro
-  /*
+  // Añadir nuevo cuadro
   const handleAddPainting = async () => {
     if (!newPainting.title || !newPainting.imageUrl) {
       alert("Por favor, completa todos los campos.");
       return;
     }
-    await addDoc(collection(db, "paintings"), newPainting);
-    setNewPainting({ title: "", category: "", size: "", imageUrl: "" });
-    alert("Cuadro añadido correctamente.");
-    navigate("/gallery"); // Redirige a la galería
-  };
-  */
-
-  // 🔹 Se comenta la función de eliminación de un cuadro
-  /*
-  const handleDeletePainting = async (id) => {
-    await deleteDoc(doc(db, "paintings", id));
-    alert("Cuadro eliminado correctamente.");
-    setPaintings(paintings.filter((painting) => painting.id !== id));
-  };
-  */
-
-  // Función de modificación de un cuadro
-  // 🔹 Se comenta la función de modificación de un cuadro
-  /*
-  const handleEditPainting = async (id) => {
-    const painting = paintings.find((painting) => painting.id === id);
-    const newTitle = prompt("Introduce el nuevo título", painting.title);
-    const newCategory = prompt("Introduce la nueva categoría", painting.category);
-    const newSize = prompt("Introduce el nuevo tamaño", painting.size);
-    const newImageUrl = prompt("Introduce la nueva URL de la imagen", painting.imageUrl);
-
-    if (newTitle && newImageUrl) {
-      await updateDoc(doc(db, "paintings", id), {
-        title: newTitle,
-        category: newCategory,
-        size: newSize,
-        imageUrl: newImageUrl,
-      });
-      alert("Cuadro modificado correctamente.");
-      setPaintings(paintings.map((painting) => (painting.id === id ? { ...painting, title: newTitle, category: newCategory, size: newSize, imageUrl: newImageUrl } : painting)));
+    try {
+      const docRef = await addDoc(collection(db, "paintings"), newPainting);
+      setPaintings([...paintings, { id: docRef.id, ...newPainting }]);
+      setNewPainting({ title: "", category: "", size: "", imageUrl: "" });
+      alert("Cuadro añadido correctamente.");
+      navigate("/gallery");
+    } catch (error) {
+      console.error("Error al añadir cuadro:", error);
     }
   };
-  */
+
+  // Editar cuadro
+  const handleEditPainting = async (id) => {
+    const painting = paintings.find((p) => p.id === id);
+    const newTitle = prompt("Nuevo título:", painting.title);
+    const newCategory = prompt("Nueva categoría:", painting.category);
+    const newSize = prompt("Nuevo tamaño:", painting.size);
+    const newImageUrl = prompt("Nueva URL de la imagen:", painting.imageUrl);
+
+    if (newTitle && newImageUrl) {
+      try {
+        await updateDoc(doc(db, "paintings", id), {
+          title: newTitle,
+          category: newCategory,
+          size: newSize,
+          imageUrl: newImageUrl,
+        });
+
+        setPaintings(paintings.map((p) => (p.id === id ? { ...p, title: newTitle, category: newCategory, size: newSize, imageUrl: newImageUrl } : p)));
+
+        alert("Cuadro modificado correctamente.");
+      } catch (error) {
+        console.error("Error al editar cuadro:", error);
+      }
+    }
+  };
+
+  // Eliminar cuadro
+  const handleDeletePainting = async (id) => {
+    try {
+      await deleteDoc(doc(db, "paintings", id));
+      setPaintings(paintings.filter((p) => p.id !== id));
+      alert("Cuadro eliminado correctamente.");
+    } catch (error) {
+      console.error("Error al eliminar cuadro:", error);
+    }
+  };
 
   return (
     <div className="container my-5">
       <h2>Panel de Administración</h2>
+
+      {/* Formulario para añadir cuadros */}
       <div className="mb-4">
         <h3>Añadir nuevo cuadro</h3>
         <input
@@ -98,21 +111,23 @@ const AdminPanel = ({ /* user */ }) => { // 🔹 Se comenta la recepción del us
           onChange={(e) => setNewPainting({ ...newPainting, imageUrl: e.target.value })}
           className="form-control mb-2"
         />
-        {/* 🔹 Se desactiva el botón de añadir ya que la función está comentada */}
-        {/* <button onClick={handleAddPainting} className="btn btn-primary">Añadir cuadro</button> */}
+        <button onClick={handleAddPainting} className="btn btn-primary">Añadir cuadro</button>
       </div>
 
+      {/* Lista de cuadros */}
       <h3>Lista de cuadros</h3>
       <ul className="list-group">
-        {/* 🔹 Se comenta el renderizado de los cuadros ya que no hay datos */}
-        {/* {paintings.map((painting) => (
+        {paintings.map((painting) => (
           <li key={painting.id} className="list-group-item d-flex justify-content-between align-items-center">
             <div>
               <strong>{painting.title}</strong> - {painting.category} ({painting.size})
             </div>
-            <button onClick={() => handleDeletePainting(painting.id)} className="btn btn-danger">Eliminar</button>
+            <div>
+              <button onClick={() => handleEditPainting(painting.id)} className="btn btn-warning me-2">Editar</button>
+              <button onClick={() => handleDeletePainting(painting.id)} className="btn btn-danger">Eliminar</button>
+            </div>
           </li>
-        ))} */}
+        ))}
       </ul>
     </div>
   );
