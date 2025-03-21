@@ -68,6 +68,7 @@
   100% { transform: translateY(0); }
 }
 
+
 /* Boton de inicio de sesion */
 .custom-btn {
   /* important para sobreescribir estas propiedades especificas de los botones de bootstrap */

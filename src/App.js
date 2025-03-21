@@ -62,8 +62,8 @@ const AppContent = ({ showScrollButton }) => {
       <Header user={user} />
 
       {/* Rutas */}
-      <main className="pt-5" style={{ paddingTop: "80px" }}>
-        <Routes>
+      <main className="container-fluid p-0">
+      <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/admin" element={user ? <AdminPanel /> : <Navigate to="/login" />} />
