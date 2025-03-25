@@ -1,12 +1,17 @@
 import React, { useState } from "react";
-// import { db, collection, addDoc } from "../firebaseConfig"; // 🔹 Se comenta Firestore
+import { db, collection, addDoc } from "../firebaseConfig";
+// import { useAuth } from "./AuthContext"; 
 
-const UploadPaintingModal = ({ onClose, /* onUpload */ }) => { // 🔹 Se comenta la función onUpload temporalmente
+
+const UploadPaintingModal = ({ onClose,  onUpload }) => {
+  // const { user } = useAuth(); // Obtenemos el usuario del contexto
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [size, setSize] = useState("");
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  const fileInputRef = React.createRef();
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -19,8 +24,6 @@ const UploadPaintingModal = ({ onClose, /* onUpload */ }) => { // 🔹 Se coment
     }
   };
 
-  // 🔹 Se comenta la función que sube la imagen a Firestore
-  /*
   const handleUpload = async () => {
     if (!title || !category || !size || !file) {
       alert("Por favor, completa todos los campos.");
@@ -36,10 +39,13 @@ const UploadPaintingModal = ({ onClose, /* onUpload */ }) => { // 🔹 Se coment
         category,
         size,
         imageBase64: file, // Guarda la imagen en Base64
+        createdAt: new Date()
       });
 
       alert("Cuadro subido correctamente.");
       onUpload(); // Cerrar el modal y recargar la galería
+      onClose(); 
+
     } catch (error) {
       console.error("Error subiendo el cuadro:", error);
       alert("Hubo un error al subir el cuadro.");
@@ -47,7 +53,6 @@ const UploadPaintingModal = ({ onClose, /* onUpload */ }) => { // 🔹 Se coment
       setIsUploading(false);
     }
   };
-  */
 
   return (
     <div className="modal" style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}>
@@ -79,20 +84,34 @@ const UploadPaintingModal = ({ onClose, /* onUpload */ }) => { // 🔹 Se coment
               onChange={(e) => setSize(e.target.value)}
               className="form-control mb-2"
             />
+            {/* Botón para seleccionar archivo */}
             <input
               type="file"
+              accept="image/*"
               onChange={handleFileChange}
-              className="form-control mb-2"
+              ref={fileInputRef}
+              className="d-none"
             />
+            <button
+            className="btn btn-secondary mb-2"
+            onClick={() => fileInputRef.current.click()}
+            >
+              Seleccionar imagen
+            </button>
+            {/* Vista previa de la imagen seleccionada */}
+            {file && (
+              <div className="text-center">
+                <img src={file} alt="Vista previa" className="img-fluid mt-2" style={{ maxHeight: "200px" }} />
+              </div>
+            )}
           </div>
           <div className="modal-footer">
             <button onClick={onClose} className="btn btn-secondary">
               Cancelar
             </button>
-            {/* 🔹 Se desactiva el botón de subida ya que Firestore está comentado */}
-            {/* <button onClick={handleUpload} className="btn btn-primary" disabled={isUploading}>
+            <button onClick={handleUpload} className="btn btn-primary" disabled={isUploading}>
               {isUploading ? "Subiendo..." : "Subir"}
-            </button> */}
+            </button>
           </div>
         </div>
       </div>

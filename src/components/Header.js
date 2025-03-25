@@ -9,8 +9,17 @@ const Header = () => {
   const [showSmallHeader, setShowSmallHeader] = useState(false);
   const location = useLocation();
 
+  // Determinar si estamos en la ruta Home ("/") o Gallery ("/gallery")
+  const isHomeOrGallery = location.pathname === "/" || location.pathname === "/gallery";
+
   // Manejo del scroll para mostrar/ocultar el header pequeño
   useEffect(() => {
+    if (!isHomeOrGallery) {
+      // Si no estamos en Home o Gallery, mostrar el header pequeño directamente
+      setShowSmallHeader(true);
+      return;
+    }
+
     const handleScroll = () => {
       const headerHeight = document.getElementById("large-header")?.offsetHeight || 120;
       setShowSmallHeader(window.scrollY > headerHeight);
@@ -20,7 +29,7 @@ const Header = () => {
     handleScroll();
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isHomeOrGallery, location]);
 
   // Restablece el estado si el usuario vuelve a la página principal
   useEffect(() => {
@@ -42,23 +51,25 @@ const Header = () => {
 
   return (
     <>
-      {/* Header grande */}
+      {/* Header grande (solo visible en Home y Gallery) */}
+      {isHomeOrGallery && (
       <div id="large-header" className="large-header">
-        <img src="/logo_inicio1.png" alt="Logo" className="large-logo" />
+        <img src="/Dcolors-logo-white-full.png" alt="Logo" className="large-logo" />
         <nav>
-          <Link to="/">Inicio</Link>
-          <Link to="/gallery">Galería</Link>
-          <Link to="/about">Sobre Nosotros</Link>
+          <Link to="/">INICIO</Link>
+          <Link to="/gallery">GALERÍA</Link>
+          <Link to="/about">SOBRE NOSOTROS</Link>
           {user ? (
-            <button onClick={logout} className="logout-btn">Cerrar Sesión</button>
+            <button onClick={logout} className="btn custom-btn m-2">Cerrar Sesión</button>
           ) : (
-            <Link to="/login">Admin</Link>
+            <Link to="/admin">ADMIN</Link>
           )}
         </nav>
       </div>
+      )}
 
       {/* Header pequeño (fijo arriba cuando haces scroll) */}
-      {showSmallHeader && (
+      {(showSmallHeader || !isHomeOrGallery) && (
         <div className="small-header">
           <img src="/logo_inicio1.png" alt="Logo" className="small-logo" />
           <nav>
@@ -66,10 +77,11 @@ const Header = () => {
             <Link to="/gallery">Galería</Link>
             <Link to="/about">Sobre Nosotros</Link>
             {user ? (
-              <button onClick={logout} className="logout-btn">Cerrar Sesión</button>
-            ) : (
-              <Link to="/login">Admin</Link>
-            )}
+              <>
+                <Link to="/admin">Admin</Link>
+                <button onClick={logout} className="btn custom-btn m-2">Cerrar Sesión</button>
+              </>
+            ) : null}
           </nav>
         </div>
       )}

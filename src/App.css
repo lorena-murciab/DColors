@@ -88,9 +88,17 @@
   height: 100vh;
   background: 
     url('/public/fondo_cuadros.png') center/contain no-repeat, 
-    linear-gradient(45deg,rgba(255, 0, 0, 0.5), rgba(0, 0, 255, 0.5), rgba(0, 255, 0, 0.5));
+    linear-gradient(
+      45deg,
+      rgba(255, 100, 100, 0.4),  /* Rojo suavizado */
+      rgba(100, 100, 255, 0.4),  /* Azul suavizado */
+      rgba(100, 255, 100, 0.4),  /* Verde suavizado */
+      rgba(255, 255, 100, 0.4),  /* Amarillo suavizado */
+      rgba(255, 100, 255, 0.4),  /* Magenta suavizado */
+      rgba(100, 255, 255, 0.4)   /* Cian suavizado */
+    );
   background-size: contain, 300% 300%;
-  animation: slowGradient 7s infinite alternate;
+  animation: slowGradient 6s infinite alternate;
 }
 
 
@@ -115,16 +123,41 @@
 /* Header grande */
 .large-header {
   width: 100%;
-  height: 120px; /* Sección completa en pantalla */
+  height: 220px; /* Sección completa en pantalla */
   display: flex;
+  flex-direction: column; /* Ahora los botones están debajo */
   justify-content: center;
   align-items: center;
   background: rgba(0, 0, 0, 0.8);
+  padding-top: 20px;
+  padding-bottom: 20px;
   position: relative;
 }
 
+/* Animación de aparición */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .large-logo {
-  width: 150px;
+  width: 320px; /* Aumentado el tamaño del logo */
+  animation: fadeIn 1s ease-out; /* Aparece con una animación */
+}
+
+/* Menú debajo del logo */
+.large-header nav {
+  margin-top: 15px; /* Espaciado debajo del logo */
+  display: flex;
+  flex-direction: row; /* Ahora los botones están en fila */
+  align-items: center;
+  gap: 60px;
 }
 
 /* Header pequeño (sticky) */
@@ -140,10 +173,15 @@
   align-items: center;
   padding: 0 20px;
   transition: transform 0.3s ease-in-out;
+
+  z-index: 1000; /* Asegúrate de que esté por encima de otros elementos */
+
 }
 
 .small-logo {
-  width: 50px;
+  height: 50px; /* Ajusta esto según lo que necesites */
+  max-height: 50%; /* Se asegurará de no sobrepasar el header */
+  width: auto; /* Mantiene la proporción */
 }
 
 .small-header nav a {
