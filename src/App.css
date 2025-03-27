@@ -132,6 +132,7 @@
   padding-top: 20px;
   padding-bottom: 20px;
   position: relative;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.7);
 }
 
 /* Animación de aparición */
@@ -173,6 +174,8 @@
   align-items: center;
   padding: 0 20px;
   transition: transform 0.3s ease-in-out;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.7);
+
 
   z-index: 1000; /* Asegúrate de que esté por encima de otros elementos */
 
@@ -236,3 +239,16 @@
 .category {
   font-style: italic;
 }
+
+.border-gold {
+  border-color: #d4af37 !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.object-fit-cover {
+  object-fit: cover;
+}
+

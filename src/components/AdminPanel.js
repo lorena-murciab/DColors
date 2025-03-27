@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { db, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "../firebaseConfig";
+import { db, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from "../firebaseConfig";
 
 const AdminPanel = () => {
   const [paintings, setPaintings] = useState([]);
@@ -23,50 +23,59 @@ const AdminPanel = () => {
     fetchPaintings();
   }, []);
 
-  // Convertir imagen a Base64 y comprimirla
+  // Convertir imagen a webp y comprimirla
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const img = new Image();
-        img.src = reader.result;
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-
-          // Definir tamaño máximo para evitar imágenes gigantes
-          const maxWidth = 800;
-          const maxHeight = 800;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > maxWidth || height > maxHeight) {
-            if (width > height) {
-              height *= maxWidth / width;
-              width = maxWidth;
-            } else {
-              width *= maxHeight / height;
-              height = maxHeight;
-            }
+    if (!file) return;
+  
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+  
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+  
+        // Reducir tamaño manteniendo relación de aspecto
+        const maxWidth = 1200;
+        const maxHeight = 1200;
+        let width = img.width;
+        let height = img.height;
+  
+        if (width > maxWidth || height > maxHeight) {
+          if (width > height) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          } else {
+            width *= maxHeight / height;
+            height = maxHeight;
           }
-
-          // Redimensionar la imagen en el canvas
-          canvas.width = width;
-          canvas.height = height;
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // Convertir la imagen a Base64 con compresión
-          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.8);
-
-          // Guardar la imagen en el estado
-          setSelectedFile(compressedBase64);
-          setNewPainting({ ...newPainting, imageBase64: compressedBase64 });
-        };
+        }
+  
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+  
+        // Convertir a WebP y comprimir
+        canvas.toBlob(
+          (blob) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = () => {
+              const webpBase64 = reader.result;
+              setSelectedFile(webpBase64);
+              setNewPainting({ ...newPainting, imageBase64: webpBase64 });
+            };
+          },
+          "image/webp",
+          0.85 // Calidad de compresión (entre 0 y 1)
+        );
       };
-      reader.readAsDataURL(file);
-    }
+    };
+    reader.readAsDataURL(file);
   };
+  
 
   // Subir cuadro a Firestore
   const handleAddPainting = async () => {
@@ -78,10 +87,17 @@ const AdminPanel = () => {
     setIsUploading(true);
 
     try {
-      const docRef = await addDoc(collection(db, "paintings"), newPainting);
-      setPaintings([...paintings, { id: docRef.id, ...newPainting }]);
+      const paintingData = {
+        ...newPainting,
+        timestamp: serverTimestamp(), // 🔹 Agregar la fecha de subida
+      };
+  
+      const docRef = await addDoc(collection(db, "paintings"), paintingData);
+      setPaintings([...paintings, { id: docRef.id, ...paintingData }]);
+  
       setNewPainting({ title: "", category: "", size: "", imageBase64: "" });
       setSelectedFile(null);
+  
       alert("Cuadro añadido correctamente.");
       navigate("/gallery");
     } catch (error) {

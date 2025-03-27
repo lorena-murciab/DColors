@@ -47,7 +47,7 @@ const LoginAdmin = () => {
       >
         <div
           className="text-white p-4 text-center w-100"
-          style={{ maxWidth: "700px", background: "rgba(0, 0, 0, 0.34)", borderRadius: "25x", backdropFilter: "blur(3px)" }}
+          style={{ maxWidth: "700px", background: "rgba(0, 0, 0, 0.34)", borderRadius: "25px", backdropFilter: "blur(3px)" }}
         >
 
           {/* Si hay usuario le da la bienvenida, sino muestra el formulario */}

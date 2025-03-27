@@ -8,6 +8,7 @@ import LoginAdmin from "./components/LoginAdmin"; // Página de login
 import Gallery from "./components/ImageGallery"; // Galería de cuadros
 import Header from "./components/Header"; // Header dinámico
 import AdminPanel from "./components/AdminPanel"; // Panel de administración
+import LatestPaintings from "./components/LatestPaintings"; // Importa el componente de las últimas pinturas
 
 // Estilos
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -110,9 +111,8 @@ const Footer = () => {
 const Home = () => (
   <>
     {/* Hero Section */}
-    <section id="home" className="vh-100 d-flex flex-column justify-content-center align-items-center text-center text-light bg-primary">
-      <h2>Bienvenidos a D'Colors</h2>
-      <p>Expresando arte a través del color</p>
+    <section id="home">
+      <LatestPaintings />
     </section>
 
     {/* About Section */}
