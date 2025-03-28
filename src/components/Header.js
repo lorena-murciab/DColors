@@ -53,19 +53,25 @@ const Header = () => {
     <>
       {/* Header grande (solo visible en Home y Gallery) */}
       {isHomeOrGallery && (
-      <div id="large-header" className="large-header">
-        <img src="/Dcolors-logo-white-full.png" alt="Logo" className="large-logo" />
-        <nav>
-          <Link to="/">INICIO</Link>
-          <Link to="/gallery">GALERÍA</Link>
-          <Link to="/about">SOBRE NOSOTROS</Link>
-          {user ? (
-            <button onClick={logout} className="btn custom-btn m-2">Cerrar Sesión</button>
-          ) : (
-            <Link to="/admin">ADMIN</Link>
-          )}
-        </nav>
-      </div>
+        <div id="large-header" className="large-header">
+          <img src="/Dcolors-logo-white-full.png" alt="Logo" className="large-logo" />
+          <nav className="nav-row" style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.15)', // Fondo claro transparente
+            backdropFilter: 'blur(5px)', // Efecto de vidrio esmerilado
+            padding: '0.8rem 2rem',
+            width: '100%',
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)' // Línea sutil de separación
+          }}>
+            <Link to="/" className="nav-link">INICIO</Link>
+            <Link to="/gallery" className="nav-link">GALERÍA</Link>
+            <Link to="/about" className="nav-link">SOBRE NOSOTROS</Link>
+            {user ? (
+              <button onClick={logout} className="logout-btn">Cerrar Sesión</button>
+            ) : (
+              <Link to="/admin" className="nav-link">ADMIN</Link>
+            )}
+          </nav>
+        </div>
       )}
 
       {/* Header pequeño (fijo arriba cuando haces scroll) */}

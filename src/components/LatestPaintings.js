@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { db, collection, getDocs, query, orderBy, limit } from "../firebaseConfig";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+
 const LatestPaintings = () => {
   const [paintings, setPaintings] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     const fetchLatestPaintings = async () => {
@@ -26,89 +26,112 @@ const LatestPaintings = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % paintings.length);
-        setIsTransitioning(false);
-      }, 500);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % paintings.length);
     }, 5000);
-    
     return () => clearInterval(interval);
   }, [paintings]);
 
-  return (
-    <section className="py-5 bg-light">
-      <div className="container">
-        {/* Título con subrayado elegante */}
-        <div className="text-center mb-5">
-          <h2 className="display-5 fw-light mb-3">Últimas Obras</h2>
-          <div className="mx-auto" style={{ width: '80px', height: '2px', background: '#d4af37' }}></div>
-        </div>
 
+  const currentPainting = paintings[currentIndex] || {};
+
+  return (
+    <section className="py-5" style={{ backgroundColor: '#f8f9fa', position: 'relative' }}>
+      <div className="container">
         {paintings.length > 0 ? (
-          <div className="row justify-content-center">
-            <div className="col-lg-8">
-              {/* Tarjeta principal con transición */}
-              <div 
-                className={`card border-0 shadow-sm overflow-hidden mb-4 bg-white ${isTransitioning ? "opacity-0" : "opacity-100"}`}
-                style={{ 
-                  transition: 'opacity 0.5s ease',
-                  borderRadius: '4px'
-                }}
-              >
-                <div className="ratio ratio-4x3">
-                  <img
-                    src={paintings[currentIndex].imageBase64}
-                    alt={paintings[currentIndex].title}
-                    className="img-fluid p-3"
-                    style={{ objectFit: 'contain' }}
-                  />
-                </div>
-                <div className="card-body text-center">
-                  <h3 className="h5 fw-normal mb-1">{paintings[currentIndex].title}</h3>
-                  <p className="text-muted small mb-0">
-                    <span>{paintings[currentIndex].category}</span>
-                    <span className="mx-2">•</span>
-                    <span>{paintings[currentIndex].size}</span>
+          <>
+            <div className="row align-items-center">
+              {/* Columna de texto */}
+              <div className="col-md-5 mb-4 mb-md-0">
+                <h2 style={{ 
+                  fontSize: '1.8rem',
+                  fontWeight: 300,
+                  letterSpacing: '0.5px',
+                  marginBottom: '1rem',
+                  fontFamily: "'Playfair Display', serif"
+                }}>
+                  Últimas Obras
+                </h2>
+                
+                <h3 style={{
+                  fontSize: '1.5rem',
+                  fontWeight: 300,
+                  marginBottom: '1rem',
+                  lineHeight: 1.3,
+                  fontFamily: "'Playfair Display', serif"
+                }}>
+                  {currentPainting.title}
+                </h3>
+                
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <p style={{ 
+                    color: '#666',
+                    fontSize: '1rem',
+                    marginBottom: '0.3rem',
+                    fontStyle: 'italic'
+                  }}>
+                    {currentPainting.category}
+                  </p>
+                  <p style={{ 
+                    color: '#666',
+                    fontSize: '1rem'
+                  }}>
+                    {currentPainting.size}
                   </p>
                 </div>
               </div>
 
-              {/* Miniaturas */}
-              <div className="d-flex justify-content-center gap-3">
-                {paintings.map((painting, index) => (
-                  <div
-                    key={painting.id}
-                    className={`cursor-pointer ${index === currentIndex ? "border-bottom border-3 border-gold" : ""}`}
+              {/* Columna de imagen con flechas */}
+              <div className="col-md-7 position-relative">
+
+                <div style={{
+                  position: 'relative',
+                  paddingTop: '75%',
+                  backgroundColor: 'transparent',
+                  overflow: 'hidden'
+                }}>
+                  <img
+                    src={currentPainting.images?.[0] || currentPainting.imageBase64}
+                    alt={currentPainting.title}
                     style={{
-                      width: '60px',
-                      height: '60px',
-                      transition: 'all 0.3s ease'
+                      position: 'absolute',
+                      top: '0',
+                      left: '0',
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      transition: 'transform 0.5s ease'
                     }}
-                    onClick={() => {
-                      setIsTransitioning(true);
-                      setTimeout(() => {
-                        setCurrentIndex(index);
-                        setIsTransitioning(false);
-                      }, 500);
-                    }}
-                  >
-                    <img
-                      src={painting.imageBase64}
-                      alt={painting.title}
-                      className="img-fluid h-100 w-100 object-fit-cover"
-                      style={{
-                        opacity: index === currentIndex ? 1 : 0.7,
-                        transition: 'opacity 0.3s ease'
-                      }}
-                    />
-                  </div>
-                ))}
+                  />
+                </div>
               </div>
             </div>
-          </div>
+
+            {/* Puntos de navegación - Centrados en el pie */}
+            <div className="row mt-3">
+              <div className="col-12 d-flex justify-content-center">
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  {paintings.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentIndex(index)}
+                      style={{
+                        width: index === currentIndex ? '24px' : '12px',
+                        height: '12px',
+                        borderRadius: '6px',
+                        backgroundColor: index === currentIndex ? '#d4af37' : '#ddd',
+                        border: 'none',
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer',
+                        padding: 0
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
         ) : (
-          <p className="text-center text-muted">No hay obras recientes</p>
+          <p className="text-muted text-center py-4">No hay obras recientes</p>
         )}
       </div>
     </section>
