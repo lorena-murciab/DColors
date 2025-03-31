@@ -8,6 +8,7 @@ const AdminPanel = () => {
     title: "", 
     category: "", 
     size: "", 
+    reference: "",
     images: [] 
   });
   const [isUploading, setIsUploading] = useState(false);
@@ -136,9 +137,15 @@ const AdminPanel = () => {
     const title = newPainting.title.trim();
     const category = newPainting.category.trim();
     const size = newPainting.size.trim();
+    const reference = newPainting.reference.trim();
     
     if (!title) {
       alert("El título no puede estar vacío");
+      return;
+    }
+
+    if (!reference) {
+      alert("La referencia no puede estar vacía");
       return;
     }
     
@@ -155,6 +162,7 @@ const AdminPanel = () => {
         title,
         category: category || "Sin categoría",
         size: size || "No especificado",
+        reference: reference || "Sin referencia",
         images: newPainting.images,
         timestamp: serverTimestamp(),
       };
@@ -171,6 +179,7 @@ const AdminPanel = () => {
       title: "", 
       category: "", 
       size: "", 
+      reference: "",
       images: [] 
     });
 
@@ -190,17 +199,19 @@ const AdminPanel = () => {
     const newTitle = prompt("Nuevo título:", painting.title);
     const newCategory = prompt("Nueva categoría:", painting.category);
     const newSize = prompt("Nuevo tamaño:", painting.size);
+    const newReference = prompt("Nueva referencia:", painting.reference);
     
-    if (newTitle && newCategory && newSize) {
+    if (newTitle || newCategory || newSize || newReference) {
       try {
         await updateDoc(doc(db, "paintings", id), {
           title: newTitle,
           category: newCategory,
           size: newSize,
+          reference: newReference,
         });
 
         setPaintings(paintings.map((p) => 
-          p.id === id ? { ...p, title: newTitle, category: newCategory, size: newSize } : p
+          p.id === id ? { ...p, title: newTitle, category: newCategory, size: newSize, reference: newReference } : p
         ));
         alert("Cuadro modificado correctamente.");
       } catch (error) {
@@ -223,7 +234,7 @@ const AdminPanel = () => {
   };
 
   return (
-    <div className="container mt-5 pt-5"> {/* Añadido pt-4 para evitar solapamiento con header */}
+    <div className="container mt-5 pt-5"> {/* Añadido pt-5 para evitar solapamiento con header */}
       <h2 className="mb-4">Panel de Administración</h2>
 
       {/* Formulario para añadir cuadros */}
@@ -232,7 +243,7 @@ const AdminPanel = () => {
           <h3 className="card-title mb-4">Añadir nuevo cuadro</h3>
           
           <div className="row g-3">
-            <div className="col-md-4">
+            <div className="col-md-3">
               <label className="form-label">Título</label>
               <input
                 type="text"
@@ -243,7 +254,7 @@ const AdminPanel = () => {
               />
             </div>
             
-            <div className="col-md-4">
+            <div className="col-md-3">
               <label className="form-label">Categoría</label>
               <input
                 type="text"
@@ -254,13 +265,24 @@ const AdminPanel = () => {
               />
             </div>
             
-            <div className="col-md-4">
+            <div className="col-md-3">
               <label className="form-label">Tamaño</label>
               <input
                 type="text"
                 placeholder="Ej: 50x70 cm"
                 value={newPainting.size}
                 onChange={(e) => setNewPainting({ ...newPainting, size: e.target.value })}
+                className="form-control"
+              />
+            </div>
+
+          <div className="col-md-3">
+              <label className="form-label">Número de referencia</label>
+              <input
+                type="text"
+                placeholder="Ej: ABC123"
+                value={newPainting.reference}
+                onChange={(e) => setNewPainting({ ...newPainting, reference: e.target.value })}
                 className="form-control"
               />
             </div>
@@ -387,6 +409,9 @@ const AdminPanel = () => {
                           <strong>{painting.title}</strong>
                           <div className="text-muted small">
                             {painting.category} • {painting.size}
+                            {painting.reference && (
+                              <> • <span className="fw-medium">Ref: {painting.reference}</span></>
+                            )}
                           </div>
                         </div>
                       </td>
