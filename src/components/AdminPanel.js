@@ -1,20 +1,33 @@
 import React, { useState, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
 import { db, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from "../firebaseConfig";
+
+// Tamaños predefinidos
+const PREDEFINED_SIZES = [
+  "150 x 50 cm", "100 x 80 cm", "70 x 140 cm", "100 x 130 cm",
+  "100 x 150 cm", "100 x 200 cm", "120 x 120 cm", "120 x 150 cm", "60 x 60 cm",
+];
 
 const AdminPanel = () => {
   const [paintings, setPaintings] = useState([]);
   const [newPainting, setNewPainting] = useState({ 
     title: "", 
     category: "", 
-    size: "", 
+    sizes: [], 
     reference: "",
-    images: [] 
+    images: [],
+    customSize: "",
   });
   const [isUploading, setIsUploading] = useState(false);
-  // const navigate = useNavigate();
+  const [showSizesDropdown, setShowSizesDropdown] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({
+    title: false,
+    reference: false,
+    images: false,
+    sizes: false,
+    category: false,
+  });
 
-  // Cargar cuadros desde Firestore
+  // Cargar cuadros ya creados desde Firestore
   useEffect(() => {
     const fetchPaintings = async () => {
       try {
@@ -30,6 +43,34 @@ const AdminPanel = () => {
     };
     fetchPaintings();
   }, []);
+
+  // Click fuera del dropdown para cerrarlo
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.sizes-dropdown-container')) {
+        setShowSizesDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Validar campos
+  const validateFields = () => {
+    const errors = {
+      title: !newPainting.title.trim(),
+      reference: !newPainting.reference.trim(),
+      images: newPainting.images.length === 0,
+      sizes: newPainting.sizes.length === 0,
+      category: !newPainting.category.trim(),
+    };
+    
+    setValidationErrors(errors);
+    return !Object.values(errors).some(error => error);
+  };
 
   // Convertir y comprimir imágenes
   const handleFilesChange = async (e) => {
@@ -49,9 +90,9 @@ const AdminPanel = () => {
         ...prev,
         images: [...prev.images, ...optimizedImages].slice(0, 4)
       }));
+      setValidationErrors(prev => ({...prev, images: false}));
     } catch (error) {
       console.error("Error optimizando imágenes:", error);
-      alert("Algunas imágenes no pudieron optimizarse");
     } finally {
       setIsUploading(false);
     }
@@ -66,8 +107,6 @@ const AdminPanel = () => {
       attempt++;
       const base64 = await compressImage(file, quality);
       const sizeKB = (base64.length * 0.75) / 1024; // Tamaño aproximado en KB
-      
-      console.log(`Intento ${attempt}: Calidad ${quality} -> ${sizeKB.toFixed(2)}KB`);
       
       if (sizeKB <= targetSizeKB) {
         result = base64;
@@ -131,92 +170,113 @@ const AdminPanel = () => {
     }));
   };
   
+  // Manejar selección/deselección de tamaños
+  const handleSizeToggle = (size) => {
+    setNewPainting(prev => {
+      if (prev.sizes.includes(size)) {
+        return {
+          ...prev,
+          sizes: prev.sizes.filter(s => s !== size)
+        };
+      } else {
+        return {
+          ...prev,
+          sizes: [...prev.sizes, size]
+        };
+      }
+    });
+    setValidationErrors(prev => ({...prev, sizes: false}));
+  };
+
+  // Añadir tamaño personalizado
+  const handleAddCustomSize = () => {
+    if (newPainting.customSize && !newPainting.sizes.includes(newPainting.customSize)) {
+      setNewPainting(prev => ({
+        ...prev,
+        sizes: [...prev.sizes, prev.customSize],
+        customSize: ""
+      }));
+      setValidationErrors(prev => ({...prev, sizes: false}));
+    }
+  };
 
   // Subir cuadro a Firestore
   const handleAddPainting = async () => {
-    const title = newPainting.title.trim();
-    const category = newPainting.category.trim();
-    const size = newPainting.size.trim();
-    const reference = newPainting.reference.trim();
-    
-    if (!title) {
-      alert("El título no puede estar vacío");
-      return;
-    }
-
-    if (!reference) {
-      alert("La referencia no puede estar vacía");
-      return;
-    }
-    
-    if (newPainting.images.length === 0) {
-      alert("Debes añadir al menos una imagen");
-      return;
-    }
+    if (!validateFields()) return;
   
     setIsUploading(true);
 
     try {
-      console.log("Preparando datos para Firestore..."); // Debug
       const paintingData = {
-        title,
-        category: category || "Sin categoría",
-        size: size || "No especificado",
-        reference: reference || "Sin referencia",
+        title: newPainting.title.trim(),
+        category: newPainting.category.trim(),
+        sizes: newPainting.sizes,
+        reference: newPainting.reference.trim(),
         images: newPainting.images,
         timestamp: serverTimestamp(),
       };
   
-      console.log("Intentando añadir documento..."); // Debug
       const docRef = await addDoc(collection(db, "paintings"), paintingData);
-      console.log("Documento añadido con ID:", docRef.id); // Debug
-  
-      // Actualizar estado optimista
       setPaintings(prev => [...prev, { id: docRef.id, ...paintingData }]);
   
-    // Resetear formulario
-    setNewPainting({ 
-      title: "", 
-      category: "", 
-      size: "", 
-      reference: "",
-      images: [] 
-    });
-
-    alert("✅ Cuadro añadido correctamente");
-    console.log("Estado actualizado, cuadros:", paintings.length + 1); // Debug
-  } catch (error) {
-    console.error("❌ Error al añadir cuadro:", error);
-    alert(`Error al añadir cuadro: ${error.message}`);
-  } finally {
-    setIsUploading(false);
-  }
-};
+      // Resetear formulario
+      setNewPainting({ 
+        title: "", 
+        category: "",
+        sizes: [],
+        reference: "",
+        images: [],
+        customSize: ""
+      });
+      setValidationErrors({
+        title: false,
+        reference: false,
+        images: false,
+        sizes: false,
+        category: false,
+      });
+    } catch (error) {
+      console.error("Error al añadir cuadro:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   // Editar cuadro
-  const handleEditPainting = async (id) => {
-    const painting = paintings.find((p) => p.id === id);
-    const newTitle = prompt("Nuevo título:", painting.title);
-    const newCategory = prompt("Nueva categoría:", painting.category);
-    const newSize = prompt("Nuevo tamaño:", painting.size);
-    const newReference = prompt("Nueva referencia:", painting.reference);
-    
-    if (newTitle || newCategory || newSize || newReference) {
-      try {
-        await updateDoc(doc(db, "paintings", id), {
-          title: newTitle,
-          category: newCategory,
-          size: newSize,
-          reference: newReference,
-        });
-
-        setPaintings(paintings.map((p) => 
-          p.id === id ? { ...p, title: newTitle, category: newCategory, size: newSize, reference: newReference } : p
-        ));
-        alert("Cuadro modificado correctamente.");
-      } catch (error) {
-        console.error("Error al editar cuadro:", error);
-      }
+  const [editingPainting, setEditingPainting] = useState(null);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    category: "",
+    sizes: [],
+    reference: ""
+  });
+  
+  // Al hacer clic en Editar
+  const handleEditClick = (painting) => {
+    setEditingPainting(painting);
+    setEditForm({
+      title: painting.title,
+      category: painting.category,
+      sizes: [...painting.sizes],
+      reference: painting.reference
+    });
+  };
+  
+  // Guardar cambios
+  const handleSaveEdit = async () => {
+    try {
+      await updateDoc(doc(db, "paintings", editingPainting.id), {
+        ...editForm,
+        sizes: editForm.sizes.filter(size => size.trim() !== "")
+      });
+  
+      setPaintings(paintings.map(p => 
+        p.id === editingPainting.id ? { ...p, ...editForm } : p
+      ));
+      
+      setEditingPainting(null);
+    } catch (error) {
+      console.error("Error al guardar:", error);
     }
   };
 
@@ -226,7 +286,6 @@ const AdminPanel = () => {
       try {
         await deleteDoc(doc(db, "paintings", id));
         setPaintings(paintings.filter((p) => p.id !== id));
-        alert("Cuadro eliminado correctamente.");
       } catch (error) {
         console.error("Error al eliminar cuadro:", error);
       }
@@ -234,7 +293,7 @@ const AdminPanel = () => {
   };
 
   return (
-    <div className="container mt-5 pt-5"> {/* Añadido pt-5 para evitar solapamiento con header */}
+    <div className="container mt-5 pt-5">
       <h2 className="mb-4">Panel de Administración</h2>
 
       {/* Formulario para añadir cuadros */}
@@ -249,9 +308,15 @@ const AdminPanel = () => {
                 type="text"
                 placeholder="Título del cuadro"
                 value={newPainting.title}
-                onChange={(e) => setNewPainting({ ...newPainting, title: e.target.value })}
-                className="form-control"
+                onChange={(e) => {
+                  setNewPainting({ ...newPainting, title: e.target.value });
+                  setValidationErrors(prev => ({...prev, title: false}));
+                }}
+                className={`form-control ${validationErrors.title ? 'is-invalid' : ''}`}
               />
+              {validationErrors.title && (
+                <div className="invalid-feedback">El título es obligatorio</div>
+              )}
             </div>
             
             <div className="col-md-3">
@@ -260,31 +325,111 @@ const AdminPanel = () => {
                 type="text"
                 placeholder="Ej: Abstracto, Retrato..."
                 value={newPainting.category}
-                onChange={(e) => setNewPainting({ ...newPainting, category: e.target.value })}
-                className="form-control"
+                onChange={(e) => {
+                  setNewPainting({ ...newPainting, category: e.target.value });
+                  setValidationErrors(prev => ({...prev, category: false}));
+                }}
+                className={`form-control ${validationErrors.category ? 'is-invalid' : ''}`}
               />
+              {validationErrors.category && (
+              <div className="invalid-feedback">La categoría es obligatoria</div>
+              )}
             </div>
             
-            <div className="col-md-3">
-              <label className="form-label">Tamaño</label>
-              <input
-                type="text"
-                placeholder="Ej: 50x70 cm"
-                value={newPainting.size}
-                onChange={(e) => setNewPainting({ ...newPainting, size: e.target.value })}
-                className="form-control"
-              />
+            <div className="col-md-6 sizes-dropdown-container">
+              <label className="form-label">Tamaños</label>
+              <div className="position-relative">
+                <button 
+                  type="button" 
+                  className={`btn w-100 text-start d-flex justify-content-between align-items-center ${validationErrors.sizes ? 'btn-outline-danger' : 'btn-outline-primary'}`}
+                  onClick={() => setShowSizesDropdown(!showSizesDropdown)}
+                >
+                  <span>
+                    {newPainting.sizes.length === 0 
+                      ? 'Seleccionar tamaños' 
+                      : `${newPainting.sizes.length} tamaño(s) seleccionado(s)`}
+                  </span>
+                  <i className={`bi bi-chevron-${showSizesDropdown ? 'up' : 'down'}`}></i>
+                </button>
+                
+                {/* Dropdown con los tamaños predefinidos */}
+                {showSizesDropdown && (
+                  <div className="position-absolute start-0 end-0 mt-1 p-2 border rounded bg-white shadow-sm" style={{ zIndex: 1000 }}>
+                    <div className="d-flex flex-wrap gap-2 mb-2">
+                      {PREDEFINED_SIZES.map(size => (
+                        <button
+                          key={size}
+                          type="button"
+                          className={`btn btn-sm ${newPainting.sizes.includes(size) ? 'btn-primary' : 'btn-outline-secondary'}`}
+                          onClick={() => handleSizeToggle(size)}
+                          style={{ minWidth: '100px' }}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <hr className="my-2" />
+                    
+                    {/* Input para tamaño personalizado */}
+                    <div className="input-group">
+                      <input
+                        type="text"
+                        placeholder="Añadir tamaño personalizado (ej: 45x60 cm)"
+                        value={newPainting.customSize}
+                        onChange={(e) => setNewPainting({...newPainting, customSize: e.target.value})}
+                        className="form-control"
+                      />
+                      <button 
+                        className="btn btn-outline-secondary" 
+                        type="button"
+                        onClick={handleAddCustomSize}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Muestra los tamaños seleccionados */}
+              <div className="mt-2">
+                {newPainting.sizes.length > 0 && (
+                  <div className="d-flex flex-wrap gap-1">
+                    {newPainting.sizes.map(size => (
+                      <span key={size} className="badge bg-primary d-flex align-items-center">
+                        {size}
+                        <button 
+                          type="button" 
+                          className="btn-close btn-close-white ms-2" 
+                          style={{ fontSize: '0.5rem' }}
+                          onClick={() => handleSizeToggle(size)}
+                        ></button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {validationErrors.sizes && (
+                  <div className="text-danger small">Selecciona al menos un tamaño</div>
+                )}
+              </div>
             </div>
 
-          <div className="col-md-3">
+            <div className="col-md-3">
               <label className="form-label">Número de referencia</label>
               <input
                 type="text"
                 placeholder="Ej: ABC123"
                 value={newPainting.reference}
-                onChange={(e) => setNewPainting({ ...newPainting, reference: e.target.value })}
-                className="form-control"
+                onChange={(e) => {
+                  setNewPainting({ ...newPainting, reference: e.target.value });
+                  setValidationErrors(prev => ({...prev, reference: false}));
+                }}
+                className={`form-control ${validationErrors.reference ? 'is-invalid' : ''}`}
               />
+              {validationErrors.reference && (
+                <div className="invalid-feedback">La referencia es obligatoria</div>
+              )}
             </div>
           </div>
 
@@ -302,7 +447,7 @@ const AdminPanel = () => {
             
             <div className="d-flex flex-wrap gap-2 mb-3">
               <button 
-                className="btn btn-outline-secondary" 
+                className={`btn ${validationErrors.images ? 'btn-outline-danger' : 'btn-outline-secondary'}`} 
                 onClick={() => document.getElementById('fileInput').click()}
                 disabled={newPainting.images.length >= 4 || isUploading}
               >
@@ -316,6 +461,9 @@ const AdminPanel = () => {
                 </span>
               )}
             </div>
+            {validationErrors.images && (
+              <div className="text-danger small">Debes añadir al menos una imagen</div>
+            )}
 
             {/* Vista previa de imágenes */}
             {newPainting.images.length > 0 && (
@@ -344,21 +492,13 @@ const AdminPanel = () => {
           <button 
             onClick={handleAddPainting} 
             className="btn btn-primary mt-3" 
-            disabled={isUploading || newPainting.images.length === 0}
+            disabled={isUploading}
           >
             {isUploading ? (
-              <div className="alert alert-info my-3">
-                <div className="d-flex align-items-center">
-                  <div className="spinner-border spinner-border-sm me-2" role="status"></div>
-                  <span>Optimizando imágenes ({newPainting.images.length + 1}/4)...</span>
-                </div>
-                <div className="progress mt-2">
-                  <div 
-                    className="progress-bar progress-bar-striped progress-bar-animated" 
-                    style={{ width: `${(newPainting.images.length / 4) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Procesando...
+              </>
             ) : 'Añadir cuadro'}
           </button>
         </div>
@@ -408,7 +548,8 @@ const AdminPanel = () => {
                         <div>
                           <strong>{painting.title}</strong>
                           <div className="text-muted small">
-                            {painting.category} • {painting.size}
+                            {painting.category} • 
+                            {painting.sizes?.join(", ")} {/* Muestra todos los tamaños */}
                             {painting.reference && (
                               <> • <span className="fw-medium">Ref: {painting.reference}</span></>
                             )}
@@ -418,36 +559,15 @@ const AdminPanel = () => {
                       <td>
                         <div className="d-flex gap-2">
                         <button 
-                          onClick={() => handleEditPainting(painting.id)} 
-                          className="btn btn-sm"
-                          style={{
-                            backgroundColor: 'rgba(255, 193, 7, 0.2)',
-                            border: '1px solid #ffc107',
-                            color: '#b68500',
-                            fontWeight: '500',
-                            padding: '0.35rem 0.75rem',
-                            marginRight: '0.5rem',
-                            transition: 'all 0.3s ease',
-                            borderRadius: '4px'
-                          }}
-                          
+                          onClick={() => handleEditClick(painting)} 
+                          className="btn btn-sm btn-warning"
                         >
                           Editar
                         </button>
 
                         <button 
                           onClick={() => handleDeletePainting(painting.id)} 
-                          className="btn btn-sm"
-                          style={{
-                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                            border: '1px solid #dc3545',
-                            color: '#a71d2a',
-                            fontWeight: '500',
-                            padding: '0.35rem 0.75rem',
-                            transition: 'all 0.3s ease',
-                            borderRadius: '4px',
-                          }}
-                          
+                          className="btn btn-sm btn-outline-danger"
                         >
                           Eliminar
                         </button>
@@ -461,6 +581,73 @@ const AdminPanel = () => {
           )}
         </div>
       </div>
+      {editingPainting && (
+      <div className="modal" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Editar cuadro</h5>
+              <button type="button" className="btn-close" onClick={() => setEditingPainting(null)}></button>
+            </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <label className="form-label">Título</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Categoría</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={editForm.category}
+                  onChange={(e) => setEditForm({...editForm, category: e.target.value})}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Tamaños (uno por línea)</label>
+                <textarea
+                  className="form-control"
+                  rows="3"
+                  value={editForm.sizes.join("\n")}
+                  onChange={(e) => setEditForm({
+                    ...editForm, 
+                    sizes: e.target.value.split("\n")
+                  })}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Referencia</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={editForm.reference}
+                  onChange={(e) => setEditForm({...editForm, reference: e.target.value})}
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button 
+                className="btn btn-secondary" 
+                onClick={() => setEditingPainting(null)}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn btn-primary" 
+                onClick={handleSaveEdit}
+              >
+                Guardar cambios
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 };
