@@ -86,11 +86,18 @@ const AdminPanel = () => {
         if (optimized) optimizedImages.push(optimized);
       }
   
-      setNewPainting(prev => ({
-        ...prev,
-        images: [...prev.images, ...optimizedImages].slice(0, 4)
-      }));
-      setValidationErrors(prev => ({...prev, images: false}));
+      if (editingPainting) {
+        setEditForm(prev => ({
+          ...prev,
+          images: [...prev.images, ...optimizedImages].slice(0, 4)
+        }));
+      } else {
+        setNewPainting(prev => ({
+          ...prev,
+          images: [...prev.images, ...optimizedImages].slice(0, 4)
+        }));
+        setValidationErrors(prev => ({...prev, images: false}));
+      }
     } catch (error) {
       console.error("Error optimizando imágenes:", error);
     } finally {
@@ -248,7 +255,8 @@ const AdminPanel = () => {
     title: "",
     category: "",
     sizes: [],
-    reference: ""
+    reference: "",
+    images: [],
   });
   
   // Al hacer clic en Editar
@@ -258,16 +266,47 @@ const AdminPanel = () => {
       title: painting.title,
       category: painting.category,
       sizes: [...painting.sizes],
-      reference: painting.reference
+      reference: painting.reference,
+      images: [...painting.images],
     });
   };
   
   // Guardar cambios
   const handleSaveEdit = async () => {
+    // Validación adicional
+    if (editForm.images.length === 0) {
+      alert("Debes tener al menos una imagen");
+      return;
+    }
+    
+    if (!editForm.title.trim()) {
+      alert("El título no puede estar vacío");
+      return;
+    }
+
+    if (!editForm.category.trim()) {
+      alert("La categoría no puede estar vacía");
+      return;
+    }
+
+    if (!editForm.reference.trim()) {
+      alert("La referencia no puede estar vacía");
+      return;
+    }
+
+    if (editForm.sizes.length === 0) {
+      alert("Debes seleccionar al menos un tamaño");
+      return;
+    }
+
     try {
+      setIsUploading(true);
       await updateDoc(doc(db, "paintings", editingPainting.id), {
-        ...editForm,
-        sizes: editForm.sizes.filter(size => size.trim() !== "")
+        title: editForm.title,
+        category: editForm.category,
+        sizes: editForm.sizes.filter(size => size.trim() !== ""),
+        reference: editForm.reference,
+        images: editForm.images // Incluir las imágenes editadas
       });
   
       setPaintings(paintings.map(p => 
@@ -275,9 +314,14 @@ const AdminPanel = () => {
       ));
       
       setEditingPainting(null);
-    } catch (error) {
-      console.error("Error al guardar:", error);
-    }
+    // Mostrar toast de confirmación
+    alert("✅ Cambios guardados correctamente");
+  } catch (error) {
+    console.error("Error al guardar:", error);
+    alert("❌ Error al guardar los cambios");
+  } finally {
+    setIsUploading(false);
+  }
   };
 
   // Eliminar cuadro
@@ -323,7 +367,7 @@ const AdminPanel = () => {
               <label className="form-label">Categoría</label>
               <input
                 type="text"
-                placeholder="Ej: Abstracto, Retrato..."
+                placeholder="Ej: Abstracto, Pedrería..."
                 value={newPainting.category}
                 onChange={(e) => {
                   setNewPainting({ ...newPainting, category: e.target.value });
@@ -402,7 +446,7 @@ const AdminPanel = () => {
                         <button 
                           type="button" 
                           className="btn-close btn-close-white ms-2" 
-                          style={{ fontSize: '0.5rem' }}
+                          style={{ fontSize: '0.7rem' }}
                           onClick={() => handleSizeToggle(size)}
                         ></button>
                       </span>
@@ -451,7 +495,7 @@ const AdminPanel = () => {
                 onClick={() => document.getElementById('fileInput').click()}
                 disabled={newPainting.images.length >= 4 || isUploading}
               >
-                <i className="bi bi-plus-lg me-2"></i>
+                <i className="bi bi-plus-lg"></i>
                 {newPainting.images.length > 0 ? 'Añadir más' : 'Seleccionar imágenes'}
               </button>
               
@@ -583,35 +627,48 @@ const AdminPanel = () => {
       </div>
       {editingPainting && (
       <div className="modal" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-lg">
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title">Editar cuadro</h5>
               <button type="button" className="btn-close" onClick={() => setEditingPainting(null)}></button>
             </div>
+
             <div className="modal-body">
+              <div className="row">
+                <div className="col-md-6">
+
+              {/* Sección de edición de texto */ }
               <div className="mb-3">
                 <label className="form-label">Título</label>
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control ${!editForm.title.trim() ? 'is-invalid' : ''}`}
                   value={editForm.title}
                   onChange={(e) => setEditForm({...editForm, title: e.target.value})}
                 />
+                {!editForm.title.trim() && (
+                  <div className="invalid-feedback">El título es obligatorio</div>
+                )}
               </div>
+
               <div className="mb-3">
                 <label className="form-label">Categoría</label>
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control ${!editForm.category.trim() ? 'is-invalid' : ''}`}
                   value={editForm.category}
                   onChange={(e) => setEditForm({...editForm, category: e.target.value})}
                 />
+                {!editForm.category.trim() && (
+                  <div className="invalid-feedback">La categoría es obligatoria</div>
+                )}
               </div>
+
               <div className="mb-3">
                 <label className="form-label">Tamaños (uno por línea)</label>
                 <textarea
-                  className="form-control"
+                  className={`form-control ${!editForm.sizes.length ? 'is-invalid' : ''}`}
                   rows="3"
                   value={editForm.sizes.join("\n")}
                   onChange={(e) => setEditForm({
@@ -619,17 +676,90 @@ const AdminPanel = () => {
                     sizes: e.target.value.split("\n")
                   })}
                 />
+                {!editForm.sizes.length && (
+                  <div className="invalid-feedback">Selecciona al menos un tamaño</div>
+                )}
               </div>
+
               <div className="mb-3">
                 <label className="form-label">Referencia</label>
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control ${!editForm.reference.trim() ? 'is-invalid' : ''}`}
                   value={editForm.reference}
                   onChange={(e) => setEditForm({...editForm, reference: e.target.value})}
                 />
+                {!editForm.reference.trim() && (
+                  <div className="invalid-feedback">La referencia es obligatoria</div>
+                )}
               </div>
             </div>
+
+            <div className="col-md-6">
+                {/* Sección de edición de imágenes */}
+                <div className="mb-3">
+                <label className="form-label">Imágenes</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleFilesChange} 
+                  className="d-none" 
+                  id="editFileInput" 
+                  multiple
+                /> 
+
+                <button 
+                  className={`btn ${editForm.images.length >= 4 ? 'btn-outline-danger' : 'btn-outline-secondary'} mb-2 ms-2 `}
+                  onClick={() => document.getElementById('editFileInput').click()}
+                  disabled={editForm.images.length >= 4 || isUploading}
+                >
+                  <i className="bi bi-plus-lg"></i>
+                  Añadir imágenes
+                </button>
+
+                {editForm.images.length === 0 ? (
+                  <div className="text-danger small">Debes añadir al menos una imagen</div>
+                ) : (
+                <div className="alert alert-info p-2 small">
+                  <i className="bi bi-info-circle"></i>
+                  Puedes añadir hasta 4 imágenes. Haz clic en X para eliminar.
+                </div>
+                )}
+
+                {/* Vista previa de imágenes editables */}
+                <div className="row g-2 mt-2">
+                  {editForm.images.map((img, index) => (
+                    <div key={index} className="col-6 position-relative">
+                      <img 
+                        src={img} 
+                        alt={`Vista previa ${index + 1}`} 
+                        className="img-fluid rounded border"
+                        style={{ height: '100px', width: '100%', objectFit: 'cover' }}
+                      />
+                      <button
+                        onClick={() => {
+                          if (editForm.images.length > 1) {
+                            setEditForm(prev => ({
+                              ...prev,
+                              images: prev.images.filter((_, i) => i !== index)
+                            }));
+                          } else {
+                            alert("Debe haber al menos una imagen");
+                          }
+                        }}
+                        className="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                        style={{ width: '24px', height: '24px', padding: '0' }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+                
             <div className="modal-footer">
               <button 
                 className="btn btn-secondary" 
@@ -638,11 +768,17 @@ const AdminPanel = () => {
                 Cancelar
               </button>
               <button 
-                className="btn btn-primary" 
-                onClick={handleSaveEdit}
-              >
-                Guardar cambios
-              </button>
+            className="btn btn-primary" 
+            onClick={handleSaveEdit}
+            disabled={isUploading || editForm.images.length === 0 || !editForm.title.trim()}
+          >
+            {isUploading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                Guardando...
+              </>
+            ) : 'Guardar cambios'}
+          </button>
             </div>
           </div>
         </div>
