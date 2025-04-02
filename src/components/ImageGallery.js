@@ -90,6 +90,13 @@ const Gallery = () => {
   // Comprobar si hay filtros activos
   const hasActiveFilters = selectedCategory !== "all" || selectedSize !== "all" || sortOrder !== "newest";
 
+  const handlePaintingUpdated = (updatedPainting) => {
+    // Actualizar la lista principal de cuadros
+    setPaintings(paintings.map(p => 
+      p.id === updatedPainting.id ? updatedPainting : p
+    ));
+  };
+
   return (
     <div className="container my-5">
       {/* 🔹 Barra de filtros minimalista */}
@@ -217,13 +224,10 @@ const Gallery = () => {
 
       {/* 🔹 Modal de detalles del cuadro */}
       {selectedPainting && (
-        <PaintingDetail 
-        painting={selectedPainting} 
+      <PaintingDetail
+        painting={selectedPainting}
         onClose={() => setSelectedPainting(null)}
-        onSave={(updatedPainting) => {
-          // Tu lógica para guardar los cambios
-          console.log("Cuadro actualizado:", updatedPainting);
-        }}
+        onPaintingUpdated={handlePaintingUpdated}
       />
       )}
     </div>
