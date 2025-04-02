@@ -579,7 +579,12 @@ const AdminPanel = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {paintings.map((painting) => (
+
+                {/* Ordenar cuadros por fecha de creación (más recientes primero) */}
+                {paintings
+                  .slice() // Creamos una copia para no mutar el array original
+                  .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate()) // Orden descendente
+                  .map((painting) => (
                     <tr key={painting.id}>
                       <td style={{ width: '150px' }}>
                         {painting.images?.length > 0 && (
@@ -606,7 +611,7 @@ const AdminPanel = () => {
                           <strong>{painting.title}</strong>
                           <div className="text-muted small">
                             {painting.category} • 
-                            {painting.sizes?.join(", ")} {/* Muestra todos los tamaños */}
+                            {painting.sizes?.join(", ")}
                             {painting.reference && (
                               <> • <span className="fw-medium">Ref: {painting.reference}</span></>
                             )}
@@ -615,19 +620,18 @@ const AdminPanel = () => {
                       </td>
                       <td>
                         <div className="d-flex gap-2">
-                        <button 
-                          onClick={() => handleEditClick(painting)} 
-                          className="btn btn-sm btn-warning"
-                        >
-                          Editar
-                        </button>
-
-                        <button 
-                          onClick={() => handleDeletePainting(painting.id)} 
-                          className="btn btn-sm btn-outline-danger"
-                        >
-                          Eliminar
-                        </button>
+                          <button 
+                            onClick={() => handleEditClick(painting)} 
+                            className="btn btn-sm btn-warning"
+                          >
+                            Editar
+                          </button>
+                          <button 
+                            onClick={() => handleDeletePainting(painting.id)} 
+                            className="btn btn-sm btn-outline-danger"
+                          >
+                            Eliminar
+                          </button>
                         </div>
                       </td>
                     </tr>
