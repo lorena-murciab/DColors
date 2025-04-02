@@ -265,20 +265,15 @@ const AdminPanel = () => {
     setEditForm({
       title: painting.title,
       category: painting.category,
-      sizes: [...painting.sizes],
+      sizes: painting.sizes || [],
       reference: painting.reference,
-      images: [...painting.images],
+      images: painting.images || []
     });
   };
   
   // Guardar cambios
   const handleSaveEdit = async () => {
-    // Validación adicional
-    if (editForm.images.length === 0) {
-      alert("Debes tener al menos una imagen");
-      return;
-    }
-    
+    // Validaciones
     if (!editForm.title.trim()) {
       alert("El título no puede estar vacío");
       return;
@@ -295,33 +290,51 @@ const AdminPanel = () => {
     }
 
     if (editForm.sizes.length === 0) {
-      alert("Debes seleccionar al menos un tamaño");
+      alert("Debes ingresar al menos un tamaño");
       return;
     }
-
+  
+    if (editForm.images.length === 0) {
+      alert("Debes tener al menos una imagen");
+      return;
+    }
+  
+    const validSizes = editForm.sizes.filter(size => size.trim() !== "");
+    if (validSizes.length === 0) {
+      alert("Debes ingresar al menos un tamaño válido");
+      return;
+    }
+  
     try {
       setIsUploading(true);
       await updateDoc(doc(db, "paintings", editingPainting.id), {
-        title: editForm.title,
-        category: editForm.category,
-        sizes: editForm.sizes.filter(size => size.trim() !== ""),
-        reference: editForm.reference,
-        images: editForm.images // Incluir las imágenes editadas
+        title: editForm.title.trim(),
+        category: editForm.category.trim(),
+        sizes: validSizes, // Usamos solo los tamaños válidos
+        reference: editForm.reference.trim(),
+        images: editForm.images,
+        timestamp: serverTimestamp() // Actualizamos la marca de tiempo
       });
   
       setPaintings(paintings.map(p => 
-        p.id === editingPainting.id ? { ...p, ...editForm } : p
+        p.id === editingPainting.id ? { 
+          ...p, 
+          title: editForm.title.trim(),
+          category: editForm.category.trim(),
+          sizes: validSizes,
+          reference: editForm.reference.trim(),
+          images: editForm.images
+        } : p
       ));
       
       setEditingPainting(null);
-    // Mostrar toast de confirmación
-    alert("✅ Cambios guardados correctamente");
-  } catch (error) {
-    console.error("Error al guardar:", error);
-    alert("❌ Error al guardar los cambios");
-  } finally {
-    setIsUploading(false);
-  }
+      alert("✅ Cambios guardados correctamente");
+    } catch (error) {
+      console.error("Error al guardar:", error);
+      alert(`❌ Error al guardar: ${error.message}`);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   // Eliminar cuadro
@@ -665,19 +678,19 @@ const AdminPanel = () => {
                 )}
               </div>
 
-              <div className="mb-3">
-                <label className="form-label">Tamaños (uno por línea)</label>
+              <div className={`mb-3 ${editForm.sizes.filter(s => s.trim() !== "").length === 0 ? 'has-error' : ''}`}>
+                <label className="form-label">Tamaños* (uno por línea)</label>
                 <textarea
-                  className={`form-control ${!editForm.sizes.length ? 'is-invalid' : ''}`}
+                  className={`form-control ${editForm.sizes.filter(s => s.trim() !== "").length === 0 ? 'is-invalid' : ''}`}
                   rows="3"
                   value={editForm.sizes.join("\n")}
                   onChange={(e) => setEditForm({
                     ...editForm, 
-                    sizes: e.target.value.split("\n")
+                    sizes: e.target.value.split("\n").filter(s => s.trim() !== "")
                   })}
                 />
-                {!editForm.sizes.length && (
-                  <div className="invalid-feedback">Selecciona al menos un tamaño</div>
+                {editForm.sizes.filter(s => s.trim() !== "").length === 0 && (
+                  <div className="invalid-feedback">Debes ingresar al menos un tamaño</div>
                 )}
               </div>
 
@@ -770,7 +783,12 @@ const AdminPanel = () => {
               <button 
             className="btn btn-primary" 
             onClick={handleSaveEdit}
-            disabled={isUploading || editForm.images.length === 0 || !editForm.title.trim()}
+            disabled={
+              isUploading || 
+              editForm.images.length === 0 || 
+              !editForm.title.trim() ||
+              editForm.sizes.filter(s => s.trim() !== "").length === 0
+            }
           >
             {isUploading ? (
               <>
