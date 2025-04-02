@@ -217,7 +217,14 @@ const Gallery = () => {
 
       {/* 🔹 Modal de detalles del cuadro */}
       {selectedPainting && (
-        <PaintingDetail painting={selectedPainting} onClose={() => setSelectedPainting(null)} />
+        <PaintingDetail 
+        painting={selectedPainting} 
+        onClose={() => setSelectedPainting(null)}
+        onSave={(updatedPainting) => {
+          // Tu lógica para guardar los cambios
+          console.log("Cuadro actualizado:", updatedPainting);
+        }}
+      />
       )}
     </div>
   );
