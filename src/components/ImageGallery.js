@@ -8,10 +8,12 @@ const Gallery = () => {
   const [paintings, setPaintings] = useState([]);
   const [filteredPaintings, setFilteredPaintings] = useState([]);
   const [categories, setCategories] = useState(["all"]);
+  const [authors, setAuthors] = useState(["all"]);
   const [sizes, setSizes] = useState([]);
   
   // Estados para filtros
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedAuthor, setSelectedAuthor] = useState("all");
   const [selectedSize, setSelectedSize] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,9 +37,14 @@ const Gallery = () => {
         // Extraer categorías únicas de los cuadros
         const uniqueCategories = [...new Set(paintingsList.map(p => p.category))];
         setCategories(["all", ...uniqueCategories.filter(c => c && c !== "Sin categoría")]);
+
+        // Extraer autores únicos
+        const uniqueAuthors = [...new Set(paintingsList.map(p => p.author))];
+        setAuthors(["all", ...uniqueAuthors.filter(a => a && a !== "Sin autor")]);
         
         // Extraer tamaños únicos
-        const uniqueSizes = [...new Set(paintingsList.map(p => p.size))];
+        const allSizes = paintingsList.flatMap(p => p.sizes || []);
+        const uniqueSizes = [...new Set(allSizes)];
         setSizes(["all", ...uniqueSizes.filter(s => s)]);
       } catch (error) {
         console.error("Error al cargar los cuadros:", error);
@@ -54,10 +61,17 @@ const Gallery = () => {
     if (selectedCategory !== "all") {
       result = result.filter((painting) => painting.category === selectedCategory);
     }
+
+    // Filtrar por autor
+    if (selectedAuthor !== "all") {
+      result = result.filter((painting) => painting.author === selectedAuthor);
+    }
     
     // Filtrar por tamaño
     if (selectedSize !== "all") {
-      result = result.filter((painting) => painting.size === selectedSize);
+      result = result.filter((painting) => 
+        painting.sizes && painting.sizes.includes(selectedSize)
+      );
     }
 
     // Filtrar por búsqueda
@@ -65,23 +79,38 @@ const Gallery = () => {
       const term = searchTerm.toLowerCase();
       result = result.filter((painting) =>
         (painting.title && painting.title.toLowerCase().includes(term)) ||
-        (painting.reference && painting.reference.toLowerCase().includes(term))
-    );
+        (painting.reference && painting.reference.toLowerCase().includes(term)) ||
+        (painting.author && painting.author.toLowerCase().includes(term)) ||
+        (painting.category && painting.category.toLowerCase().includes(term))
+      );
     }
     
     // Aplicar ordenación
-    if (sortOrder === "newest") {
-      result.sort((a, b) => b.createdAt - a.createdAt);
-    } else if (sortOrder === "oldest") {
-      result.sort((a, b) => a.createdAt - b.createdAt);
-    } else if (sortOrder === "titleAsc") {
-      result.sort((a, b) => a.title.localeCompare(b.title));
-    } else if (sortOrder === "titleDesc") {
-      result.sort((a, b) => b.title.localeCompare(a.title));
-    }
+    result = sortPaintings(result, sortOrder);
     
     setFilteredPaintings(result);
-  }, [selectedCategory, selectedSize, sortOrder, paintings, searchTerm]);
+  }, [selectedCategory, selectedAuthor, selectedSize, sortOrder, paintings, searchTerm]);
+
+  // Función para ordenar cuadros
+  const sortPaintings = (paintings, order) => {
+    const sorted = [...paintings];
+    switch (order) {
+      case "newest":
+        return sorted.sort((a, b) => b.createdAt - a.createdAt);
+      case "oldest":
+        return sorted.sort((a, b) => a.createdAt - b.createdAt);
+      case "titleAsc":
+        return sorted.sort((a, b) => a.title?.localeCompare(b.title));
+      case "titleDesc":
+        return sorted.sort((a, b) => b.title?.localeCompare(a.title));
+      case "authorAsc":
+        return sorted.sort((a, b) => a.author?.localeCompare(b.author));
+      case "authorDesc":
+        return sorted.sort((a, b) => b.author?.localeCompare(a.author));
+      default:
+        return sorted;
+    }
+  };
 
   // Función para obtener la primera imagen de un cuadro
   const getMainImage = (painting) => {
@@ -93,13 +122,18 @@ const Gallery = () => {
   // Resetear todos los filtros
   const resetFilters = () => {
     setSelectedCategory("all");
+    setSelectedAuthor("all");
     setSelectedSize("all");
     setSortOrder("newest");
     setSearchTerm("");
   };
 
   // Comprobar si hay filtros activos
-  const hasActiveFilters = selectedCategory !== "all" || selectedSize !== "all" || sortOrder !== "newest" || searchTerm !== "";
+  const hasActiveFilters = selectedCategory !== "all" || 
+                         selectedAuthor !== "all" || 
+                         selectedSize !== "all" || 
+                         sortOrder !== "newest" || 
+                         searchTerm !== "";
 
   const handlePaintingUpdated = (updatedPainting) => {
     // Actualizar la lista principal de cuadros
@@ -139,37 +173,38 @@ const Gallery = () => {
       {showFilters && (
         <div className="row mb-4 p-3 border border-light rounded animate__animated animate__fadeIn">
           {/* Barra de búsqueda */}
-    {/* Campo de búsqueda minimalista */}
-    <div className="col-12 mb-4">
-      <div className="position-relative">
-        <input
-          type="text"
-          className="form-control border-0 ps-0 border-bottom rounded-0"
-          placeholder="Buscar por título o referencia..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            background: 'transparent',
-            boxShadow: 'none',
-            paddingLeft: '1.75rem'
-          }}
-        />
-        <i className="bi bi-search position-absolute start-0 top-50 translate-middle-y"></i>
-        {searchTerm && (
-          <button 
-            className="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0"
-            onClick={() => setSearchTerm("")}
-            style={{
-              color: '#6c757d',
-              textDecoration: 'none'
-            }}
-          >
-            <i className="bi bi-x"></i>
-          </button>
-        )}
-      </div>
-    </div>
-          <div className="col-md-4 mb-3">
+          <div className="col-12 mb-4">
+            <div className="position-relative">
+              <input
+                type="text"
+                className="form-control border-0 ps-0 border-bottom rounded-0"
+                placeholder="Buscar por título, referencia, autor o categoría..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  background: 'transparent',
+                  boxShadow: 'none',
+                  paddingLeft: '1.75rem'
+                }}
+              />
+              <i className="bi bi-search position-absolute start-0 top-50 translate-middle-y"></i>
+              {searchTerm && (
+                <button 
+                  className="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0"
+                  onClick={() => setSearchTerm("")}
+                  style={{
+                    color: '#6c757d',
+                    textDecoration: 'none'
+                  }}
+                >
+                  <i className="bi bi-x"></i>
+                </button>
+              )}
+            </div>
+          </div>
+
+
+          <div className="col-md-3 mb-3">
             <select 
               className="form-select form-select-sm border-0" 
               value={selectedCategory}
@@ -182,8 +217,22 @@ const Gallery = () => {
               ))}
             </select>
           </div>
+
+          <div className="col-md-3 mb-3">
+            <select 
+              className="form-select form-select-sm border-0" 
+              value={selectedAuthor}
+              onChange={(e) => setSelectedAuthor(e.target.value)}
+            >
+              {authors.map((author) => (
+                <option key={author} value={author}>
+                  {author === "all" ? "Todos los autores" : author}
+                </option>
+              ))}
+            </select>
+          </div>
           
-          <div className="col-md-4 mb-3">
+          <div className="col-md-3 mb-3">
             <select 
               className="form-select form-select-sm border-0" 
               value={selectedSize}
@@ -197,7 +246,7 @@ const Gallery = () => {
             </select>
           </div>
           
-          <div className="col-md-4 mb-3">
+          <div className="col-md-3 mb-3">
             <select 
               className="form-select form-select-sm border-0" 
               value={sortOrder}
@@ -207,12 +256,14 @@ const Gallery = () => {
               <option value="oldest">Más antiguos primero</option>
               <option value="titleAsc">Título (A-Z)</option>
               <option value="titleDesc">Título (Z-A)</option>
+              <option value="authorAsc">Autor (A-Z)</option>
+              <option value="authorDesc">Autor (Z-A)</option>
             </select>
           </div>
         </div>
       )}
 
-      {/* 🔹 Contador de resultados minimalista */}
+      {/* 🔹 Contador de resultados */}
       {hasActiveFilters && (
         <div className="mb-4 text-muted small color-primary">
           Mostrando {filteredPaintings.length} de {paintings.length} obras
@@ -236,21 +287,8 @@ const Gallery = () => {
                 />
                 <div className="overlay p-3">
                   <h5 className="title mb-1">{painting.title}</h5>
-                  <div className="d-flex justify-content-between">
-                    <div>
-                      <p className="category mb-1">{painting.category}</p>
-                      <p className="size mb-0">{painting.size}</p>
-                    </div>
-                    {painting.reference && (
-                      <p className="reference badge bg-light text-dark">Ref: {painting.reference}</p>
-                    )}
-                  </div>
-                  {painting.images && painting.images.length > 1 && (
-                    <div className="position-absolute bottom-0 end-0 m-2">
-                      <span className="badge bg-dark">+{painting.images.length - 1}</span>
-                    </div>
-                  )}
                 </div>
+                
               </div>
             </div>
           ))

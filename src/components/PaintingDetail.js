@@ -56,7 +56,7 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
             {/* Contenido del modal de visualización */}
           <div className="modal-body p-0">
             <div className="row g-0">
-              {/* Galería de imágenes - Versión minimalista */}
+              {/* Galería de imágenes */}
               <div className="col-lg-8">
               {currentPainting.images?.length > 0 ? (
                     <Carousel>
@@ -84,8 +84,8 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
                 )}
               </div>
               
-              {/* Detalles del cuadro - Versión minimalista */}
-              <div className="col-lg-4 position-relative"> {/* Agregar position-relative aquí */}
+              {/* Detalles del cuadro */}
+              <div className="col-lg-4 position-relative">
                 {isAdmin && (
                   <button 
                     onClick={() => setShowEditModal(true)}
@@ -102,14 +102,14 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
                 
                 <div 
                   className="h-100 p-4 d-flex flex-column justify-content-center" 
-                  style={{ backgroundColor: "rgba(255,255,255,0.95)" }}
+                  style={{ backgroundColor: "#f8f9fa" }}
                 >
-                  <h1 className="display-5 fw-light mb-4">{currentPainting.title}</h1>
-                  
-                  <div className="mb-4">
-                    <h6 className="text-uppercase text-muted small mb-2">Referencia</h6>
-                    <p className="fs-5">{currentPainting.reference || "—"}</p>
-                  </div>
+                  <h1 className="display-5 fw-light mb-4 pb-2">{currentPainting.title}</h1>
+
+                  <div className="mb-3">
+                      <h6 className="text-uppercase text-muted small mb-2">Autor</h6>
+                      <p className="fs-5">{currentPainting.author || "—"}</p>
+                    </div>
                   
                   <div className="mb-4">
                     <h6 className="text-uppercase text-muted small mb-2">Categoría</h6>
@@ -129,6 +129,11 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
                         <span className="text-muted">—</span>
                       )}
                     </div>
+                  </div>
+
+                  <div className="mb-4 pt-2">
+                    <h6 className="text-uppercase text-muted small mb-2">Referencia</h6>
+                    <p className="fs-7">{currentPainting.reference || "—"}</p>
                   </div>
                 </div>
               </div>
