@@ -14,6 +14,7 @@ const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSize, setSelectedSize] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
+  const [searchTerm, setSearchTerm] = useState("");
   
   const [selectedPainting, setSelectedPainting] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -58,6 +59,15 @@ const Gallery = () => {
     if (selectedSize !== "all") {
       result = result.filter((painting) => painting.size === selectedSize);
     }
+
+    // Filtrar por búsqueda
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter((painting) =>
+        (painting.title && painting.title.toLowerCase().includes(term)) ||
+        (painting.reference && painting.reference.toLowerCase().includes(term))
+    );
+    }
     
     // Aplicar ordenación
     if (sortOrder === "newest") {
@@ -71,7 +81,7 @@ const Gallery = () => {
     }
     
     setFilteredPaintings(result);
-  }, [selectedCategory, selectedSize, sortOrder, paintings]);
+  }, [selectedCategory, selectedSize, sortOrder, paintings, searchTerm]);
 
   // Función para obtener la primera imagen de un cuadro
   const getMainImage = (painting) => {
@@ -85,10 +95,11 @@ const Gallery = () => {
     setSelectedCategory("all");
     setSelectedSize("all");
     setSortOrder("newest");
+    setSearchTerm("");
   };
 
   // Comprobar si hay filtros activos
-  const hasActiveFilters = selectedCategory !== "all" || selectedSize !== "all" || sortOrder !== "newest";
+  const hasActiveFilters = selectedCategory !== "all" || selectedSize !== "all" || sortOrder !== "newest" || searchTerm !== "";
 
   const handlePaintingUpdated = (updatedPainting) => {
     // Actualizar la lista principal de cuadros
@@ -127,6 +138,37 @@ const Gallery = () => {
       {/* 🔹 Panel de filtros desplegable */}
       {showFilters && (
         <div className="row mb-4 p-3 border border-light rounded animate__animated animate__fadeIn">
+          {/* Barra de búsqueda */}
+    {/* Campo de búsqueda minimalista */}
+    <div className="col-12 mb-4">
+      <div className="position-relative">
+        <input
+          type="text"
+          className="form-control border-0 ps-0 border-bottom rounded-0"
+          placeholder="Buscar por título o referencia..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            background: 'transparent',
+            boxShadow: 'none',
+            paddingLeft: '1.75rem'
+          }}
+        />
+        <i className="bi bi-search position-absolute start-0 top-50 translate-middle-y"></i>
+        {searchTerm && (
+          <button 
+            className="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0"
+            onClick={() => setSearchTerm("")}
+            style={{
+              color: '#6c757d',
+              textDecoration: 'none'
+            }}
+          >
+            <i className="bi bi-x"></i>
+          </button>
+        )}
+      </div>
+    </div>
           <div className="col-md-4 mb-3">
             <select 
               className="form-select form-select-sm border-0" 
@@ -172,7 +214,7 @@ const Gallery = () => {
 
       {/* 🔹 Contador de resultados minimalista */}
       {hasActiveFilters && (
-        <div className="mb-4 text-muted small">
+        <div className="mb-4 text-muted small color-primary">
           Mostrando {filteredPaintings.length} de {paintings.length} obras
         </div>
       )}

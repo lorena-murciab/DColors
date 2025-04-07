@@ -317,3 +317,32 @@ button:hover {
     margin-bottom: 2rem;
   }
 }
+
+.hover-bg:hover {
+  background-color: #f8f9fa;
+}
+
+/* Elimina el efecto hover que agranda los botones */
+.p-2.hover-bg:hover {
+  transform: none !important;
+  scale: none !important;
+}
+
+/* Elimina cualquier transformación al hacer hover */
+.btn-outline-primary:hover, 
+.btn-outline-secondary:hover {
+  transform: none !important;
+  
+}
+
+/* Elimina la transformación también cuando es btn danger */
+.btn-outline-danger:hover {
+  transform: none !important;
+}
+
+.btn-outline-primary,
+.btn-outline-secondary {
+  border: 1px solid #ced4da !important; /* Borde gris similar al de 'Seleccionar imágenes' */
+  color: #6c757d !important; /* Texto gris claro */
+  background-color: #f8f9fa !important; /* Fondo claro */
+}

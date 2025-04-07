@@ -8,6 +8,7 @@ const PREDEFINED_SIZES = [
 ];
 
 const AdminPanel = () => {
+  // Estado para almacenar los cuadros
   const [paintings, setPaintings] = useState([]);
   const [newPainting, setNewPainting] = useState({ 
     title: "", 
@@ -16,7 +17,15 @@ const AdminPanel = () => {
     reference: "",
     images: [],
     customSize: "",
+    author: "",
   });
+  
+  const [newCategoryInput, setNewCategoryInput] = useState("");
+  const [newAuthorInput, setNewAuthorInput] = useState("");
+  const [availableCategories, setAvailableCategories] = useState([]);
+  const [availableAuthors, setAvailableAuthors] = useState([]);
+  const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
+  const [showAuthorsDropdown, setShowAuthorsDropdown] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [showSizesDropdown, setShowSizesDropdown] = useState(false);
   const [validationErrors, setValidationErrors] = useState({
@@ -25,6 +34,7 @@ const AdminPanel = () => {
     images: false,
     sizes: false,
     category: false,
+    author: false,
   });
 
   // Cargar cuadros ya creados desde Firestore
@@ -37,19 +47,87 @@ const AdminPanel = () => {
           ...doc.data() 
         }));
         setPaintings(paintingsList);
+
+        // Extraer categorías únicas
+        const categories = [...new Set(paintingsList.map(p => p.category).filter(Boolean))];
+        setAvailableCategories(categories);
+        
+        // Extraer autores únicos (asumiendo que ahora tienes un campo 'author' en tus documentos)
+        const authors = [...new Set(paintingsList.map(p => p.author).filter(Boolean))];
+        setAvailableAuthors(authors);
       } catch (error) {
         console.error("Error al cargar los cuadros:", error);
       }
     };
     fetchPaintings();
   }, []);
+  
+  // Función para añadir nueva categoría manualmente
+  const handleAddCustomCategory = (categoryName) => {
+    if (categoryName.trim() && !availableCategories.includes(categoryName.trim())) {
+      // Añade a las categorías disponibles
+      setAvailableCategories(prev => [...prev, categoryName.trim()]);
+      // Establece como categoría seleccionada
+      setNewPainting(prev => ({...prev, category: categoryName.trim()}));
+      setValidationErrors(prev => ({...prev, category: false}));
+    }
+  };
+  
+  const handleCategorySelect = (category) => {
+    setNewPainting(prev => ({
+      ...prev,
+      category,
+    }));
+    setShowCategoriesDropdown(false);
+    setValidationErrors(prev => ({...prev, category: false}));
+  };
+  
+  const handleAddCustomAuthor = (authorName) => {
+    if (authorName.trim() && !availableAuthors.includes(authorName.trim())) {
+      // Añade a los autores disponibles
+      setAvailableAuthors(prev => [...prev, authorName.trim()]);
+      // Establece como autor seleccionado
+      setNewPainting(prev => ({...prev, author: authorName.trim()}));
+    }
+  };
+  
+  const handleAuthorSelect = (author) => {
+    setNewPainting(prev => ({
+      ...prev,
+      author,
+    }));
+    setShowAuthorsDropdown(false);
+    setValidationErrors(prev => ({...prev, author: false}));
+  };
 
   // Click fuera del dropdown para cerrarlo
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.sizes-dropdown-container')) {
+      /*
+      if (!event.target.closest('.dropdown-container')) {
         setShowSizesDropdown(false);
-      }
+        setShowCategoriesDropdown(false);
+        setShowAuthorsDropdown(false);
+      } */
+
+        const dropdowns = document.querySelectorAll('.dropdown-container');
+        let isClickInside = false;
+    
+        dropdowns.forEach(dropdown => {
+          if (dropdown.contains(event.target)) {
+            isClickInside = true;
+          }
+        });
+    
+        if (!isClickInside) {
+          setShowEditSizesDropdown(false);
+          setShowEditCategoriesDropdown(false);
+          setShowEditAuthorsDropdown(false);
+          // Cierra también los del formulario principal si es necesario
+          setShowSizesDropdown(false);
+          setShowCategoriesDropdown(false);
+          setShowAuthorsDropdown(false);
+        }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -66,6 +144,7 @@ const AdminPanel = () => {
       images: newPainting.images.length === 0,
       sizes: newPainting.sizes.length === 0,
       category: !newPainting.category.trim(),
+      author: !newPainting.author.trim(),
     };
     
     setValidationErrors(errors);
@@ -220,11 +299,22 @@ const AdminPanel = () => {
         sizes: newPainting.sizes,
         reference: newPainting.reference.trim(),
         images: newPainting.images,
+        author: newPainting.author.trim(),
         timestamp: serverTimestamp(),
       };
   
       const docRef = await addDoc(collection(db, "paintings"), paintingData);
       setPaintings(prev => [...prev, { id: docRef.id, ...paintingData }]);
+
+      // Actualiza la lista de autores disponibles si es nuevo
+      if (newPainting.author.trim() && !availableAuthors.includes(newPainting.author.trim())) {
+        setAvailableAuthors(prev => [...prev, newPainting.author.trim()]);
+      }
+
+      // Actualiza la lista de categorías disponibles si es nueva
+      if (newPainting.category.trim() && !availableCategories.includes(newPainting.category.trim())) {
+        setAvailableCategories(prev => [...prev, newPainting.category.trim()]);
+      }
   
       // Resetear formulario
       setNewPainting({ 
@@ -233,7 +323,8 @@ const AdminPanel = () => {
         sizes: [],
         reference: "",
         images: [],
-        customSize: ""
+        customSize: "",
+        author: "",
       });
       setValidationErrors({
         title: false,
@@ -241,6 +332,7 @@ const AdminPanel = () => {
         images: false,
         sizes: false,
         category: false,
+        author: false,
       });
     } catch (error) {
       console.error("Error al añadir cuadro:", error);
@@ -250,6 +342,12 @@ const AdminPanel = () => {
   };
 
   // Editar cuadro
+  // Nuevos estados para controlar los dropdowns en edición
+  const [showEditSizesDropdown, setShowEditSizesDropdown] = useState(false);
+  const [showEditCategoriesDropdown, setShowEditCategoriesDropdown] = useState(false);
+  const [showEditAuthorsDropdown, setShowEditAuthorsDropdown] = useState(false);
+  const [editCustomSize, setEditCustomSize] = useState("");
+
   const [editingPainting, setEditingPainting] = useState(null);
   const [editForm, setEditForm] = useState({
     title: "",
@@ -257,6 +355,7 @@ const AdminPanel = () => {
     sizes: [],
     reference: "",
     images: [],
+    author: "",
   });
   
   // Al hacer clic en Editar
@@ -267,8 +366,14 @@ const AdminPanel = () => {
       category: painting.category,
       sizes: painting.sizes || [],
       reference: painting.reference,
-      images: painting.images || []
+      images: painting.images || [],
+      author: painting.author || "",
     });
+      // Resetear estados de dropdown
+      setShowEditSizesDropdown(false);
+      setShowEditCategoriesDropdown(false);
+      setShowEditAuthorsDropdown(false);
+      setEditCustomSize("");
   };
   
   // Guardar cambios
@@ -293,6 +398,11 @@ const AdminPanel = () => {
       alert("Debes ingresar al menos un tamaño");
       return;
     }
+
+    if (!editForm.author.trim()) {
+      alert("El autor no puede estar vacío");
+      return;
+    }
   
     if (editForm.images.length === 0) {
       alert("Debes tener al menos una imagen");
@@ -310,17 +420,27 @@ const AdminPanel = () => {
       await updateDoc(doc(db, "paintings", editingPainting.id), {
         title: editForm.title.trim(),
         category: editForm.category.trim(),
+        author: editForm.author.trim(),
         sizes: validSizes, // Usamos solo los tamaños válidos
         reference: editForm.reference.trim(),
         images: editForm.images,
         timestamp: serverTimestamp() // Actualizamos la marca de tiempo
       });
+      
+      if (editForm.author.trim() && !availableAuthors.includes(editForm.author.trim())) {
+        setAvailableAuthors(prev => [...prev, editForm.author.trim()]);
+      }
+
+      if (editForm.category.trim() && !availableCategories.includes(editForm.category.trim())) {
+        setAvailableCategories(prev => [...prev, editForm.category.trim()]);
+      }
   
       setPaintings(paintings.map(p => 
         p.id === editingPainting.id ? { 
           ...p, 
           title: editForm.title.trim(),
           category: editForm.category.trim(),
+          author: editForm.author.trim(),
           sizes: validSizes,
           reference: editForm.reference.trim(),
           images: editForm.images
@@ -359,6 +479,7 @@ const AdminPanel = () => {
           <h3 className="card-title mb-4">Añadir nuevo cuadro</h3>
           
           <div className="row g-3">
+
             <div className="col-md-3">
               <label className="form-label">Título</label>
               <input
@@ -375,31 +496,157 @@ const AdminPanel = () => {
                 <div className="invalid-feedback">El título es obligatorio</div>
               )}
             </div>
+
+              {/* Campo de Autor */}
+              <div className="col-md-3">
+                <label className="form-label">Autor</label>
+                <div className="position-relative dropdown-container">
+                  <button 
+                    type="button" 
+                    className={`btn w-100 text-start d-flex justify-content-between align-items-center ${validationErrors.author ? 'btn-outline-danger' : 'btn-outline-primary'}`}
+                    onClick={() => {
+                      setShowAuthorsDropdown(!showAuthorsDropdown);
+                      setShowCategoriesDropdown(false); // Cierra otros dropdowns
+                      setShowSizesDropdown(false);
+                    }}
+                  >
+                    <span>
+                      {newPainting.author || 'Seleccionar autor'}
+                    </span>
+                    <i className={`bi bi-chevron-${showAuthorsDropdown ? 'up' : 'down'}`}></i>
+                  </button>
+                  
+                  {showAuthorsDropdown && (
+                    <div className="position-absolute start-0 end-0 mt-1 p-2 border rounded bg-white shadow-sm" style={{ zIndex: 1000 }}>
+                      {/* Opciones existentes */}
+                      <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '10px' }}>
+                        {availableAuthors.map(author => (
+                          <div
+                            key={author}
+                            className={`p-2 ${newPainting.author === author ? 'bg-primary text-white' : 'hover-bg'}`}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                              handleAuthorSelect(author);
+                              setNewAuthorInput(""); // Limpia el input al seleccionar existente
+                            }}                          >
+                            {author}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Input para nuevo autor */}
+                      <hr className="my-2" />
+                      <div className="input-group" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          placeholder="Nuevo autor"
+                          value={newAuthorInput}  // Usa el estado separado
+                          onChange={(e) => setNewAuthorInput(e.target.value)}
+                          className="form-control"
+                          onFocus={(e) => e.stopPropagation()}
+                        />
+                        <button 
+                          className="btn btn-outline-secondary" 
+                          type="button"
+                          onClick={() => {
+                            if (newAuthorInput.trim()) {
+                              handleAddCustomAuthor(newAuthorInput);
+                              setNewAuthorInput(""); // Limpia el input después de añadir
+                            }
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {validationErrors.author && (
+                  <div className="text-danger small">Selecciona un autor</div>
+                )}
+              </div>
             
+            {/* Campo de Categoría */}
             <div className="col-md-3">
               <label className="form-label">Categoría</label>
-              <input
-                type="text"
-                placeholder="Ej: Abstracto, Pedrería..."
-                value={newPainting.category}
-                onChange={(e) => {
-                  setNewPainting({ ...newPainting, category: e.target.value });
-                  setValidationErrors(prev => ({...prev, category: false}));
-                }}
-                className={`form-control ${validationErrors.category ? 'is-invalid' : ''}`}
-              />
+              <div className="position-relative dropdown-container">
+                <button 
+                  type="button" 
+                  className={`btn w-100 text-start d-flex justify-content-between align-items-center ${validationErrors.category ? 'btn-outline-danger' : 'btn-outline-primary'}`}
+                  onClick={() => {
+                    setShowCategoriesDropdown(!showCategoriesDropdown);
+                    setShowAuthorsDropdown(false); // Cierra otros dropdowns
+                    setShowSizesDropdown(false);
+                  }}
+                >
+                  <span>
+                    {newPainting.category || 'Seleccionar categoría'}
+                  </span>
+                  <i className={`bi bi-chevron-${showCategoriesDropdown ? 'up' : 'down'}`}></i>
+                </button>
+                
+                {showCategoriesDropdown && (
+                  <div className="position-absolute start-0 end-0 mt-1 p-2 border rounded bg-white shadow-sm" style={{ zIndex: 1000 }}>
+                    {/* Opciones existentes */}
+                    <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '10px' }}>
+                      {availableCategories.map(category => (
+                        <div
+                          key={category}
+                          className={`p-2 ${newPainting.category === category ? 'bg-primary text-white' : 'hover-bg'}`}
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => {
+                            handleCategorySelect(category);
+                            setNewCategoryInput(""); // Limpia el input al seleccionar existente
+                          }}
+                        >
+                          {category}
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Input para nueva categoría */}
+                    <hr className="my-2" />
+                    <div className="input-group" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="text"
+                        placeholder="Nueva categoría"
+                        value={newCategoryInput}  // Usa el estado separado
+                        onChange={(e) => setNewCategoryInput(e.target.value)}
+                        className="form-control"
+                        onFocus={(e) => e.stopPropagation()}
+                      />
+                      <button 
+                        className="btn btn-outline-secondary" 
+                        type="button"
+                        onClick={() => {
+                          if (newCategoryInput.trim()) {
+                            handleAddCustomCategory(newCategoryInput);
+                            setNewCategoryInput(""); // Limpia el input después de añadir
+                          }
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
               {validationErrors.category && (
-              <div className="invalid-feedback">La categoría es obligatoria</div>
+                <div className="text-danger small">Selecciona una categoría</div>
               )}
             </div>
             
             <div className="col-md-6 sizes-dropdown-container">
               <label className="form-label">Tamaños</label>
-              <div className="position-relative">
+              <div className="position-relative dropdown-container">
                 <button 
                   type="button" 
                   className={`btn w-100 text-start d-flex justify-content-between align-items-center ${validationErrors.sizes ? 'btn-outline-danger' : 'btn-outline-primary'}`}
-                  onClick={() => setShowSizesDropdown(!showSizesDropdown)}
+                  onClick={() => {
+                    setShowSizesDropdown(!showSizesDropdown);
+                    setShowCategoriesDropdown(false); // Cierra otros dropdowns
+                    setShowAuthorsDropdown(false); // Cierra otros dropdowns
+                  }}
                 >
                   <span>
                     {newPainting.sizes.length === 0 
@@ -642,6 +889,8 @@ const AdminPanel = () => {
           )}
         </div>
       </div>
+
+      {/* Modal para editar cuadro */}
       {editingPainting && (
       <div className="modal" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
         <div className="modal-dialog modal-lg">
@@ -669,33 +918,185 @@ const AdminPanel = () => {
                 )}
               </div>
 
+              {/* Dropdown Categoría */}
               <div className="mb-3">
                 <label className="form-label">Categoría</label>
-                <input
-                  type="text"
-                  className={`form-control ${!editForm.category.trim() ? 'is-invalid' : ''}`}
-                  value={editForm.category}
-                  onChange={(e) => setEditForm({...editForm, category: e.target.value})}
-                />
-                {!editForm.category.trim() && (
-                  <div className="invalid-feedback">La categoría es obligatoria</div>
-                )}
+                <div className="position-relative dropdown-container">
+                  <button 
+                    type="button" 
+                    className={`btn w-100 text-start d-flex justify-content-between align-items-center ${!editForm.category ? 'btn-outline-danger' : 'btn-outline-primary'}`}
+                    onClick={() => {
+                      setShowEditCategoriesDropdown(!showEditCategoriesDropdown);
+                      setShowEditAuthorsDropdown(false);
+                      setShowEditSizesDropdown(false);
+                    }}
+                  >
+                    <span>{editForm.category || 'Seleccionar categoría'}</span>
+                    <i className={`bi bi-chevron-${showEditCategoriesDropdown ? 'up' : 'down'}`}></i>
+                  </button>
+                  
+                  {showEditCategoriesDropdown && (
+                    <div className="position-absolute start-0 end-0 mt-1 p-2 border rounded bg-white shadow-sm" style={{ zIndex: 1060 }}>
+                      <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        {availableCategories.map(category => (
+                          <div
+                            key={category}
+                            className={`p-2 ${editForm.category === category ? 'bg-primary text-white' : 'hover-bg'}`}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                              setEditForm({...editForm, category});
+                              setShowEditCategoriesDropdown(false);
+                            }}
+                          >
+                            {category}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {!editForm.category && (
+                    <div className="text-danger small">Selecciona una categoría</div>
+                  )}
+                </div>
               </div>
 
-              <div className={`mb-3 ${editForm.sizes.filter(s => s.trim() !== "").length === 0 ? 'has-error' : ''}`}>
-                <label className="form-label">Tamaños* (uno por línea)</label>
-                <textarea
-                  className={`form-control ${editForm.sizes.filter(s => s.trim() !== "").length === 0 ? 'is-invalid' : ''}`}
-                  rows="3"
-                  value={editForm.sizes.join("\n")}
-                  onChange={(e) => setEditForm({
-                    ...editForm, 
-                    sizes: e.target.value.split("\n").filter(s => s.trim() !== "")
-                  })}
-                />
-                {editForm.sizes.filter(s => s.trim() !== "").length === 0 && (
-                  <div className="invalid-feedback">Debes ingresar al menos un tamaño</div>
-                )}
+              {/* Dropdown Autor */}
+              <div className="mb-3">
+                <label className="form-label">Autor</label>
+                <div className="position-relative dropdown-container">
+                  <button 
+                    type="button" 
+                    className="btn w-100 text-start d-flex justify-content-between align-items-center btn-outline-primary"
+                    onClick={() => {
+                      setShowEditAuthorsDropdown(!showEditAuthorsDropdown);
+                      setShowEditCategoriesDropdown(false);
+                      setShowEditSizesDropdown(false);
+                    }}
+                  >
+                    <span>{editForm.author || 'Seleccionar autor'}</span>
+                    <i className={`bi bi-chevron-${showEditAuthorsDropdown ? 'up' : 'down'}`}></i>
+                  </button>
+                  
+                  {showEditAuthorsDropdown && (
+                    <div className="position-absolute start-0 end-0 mt-1 p-2 border rounded bg-white shadow-sm" style={{ zIndex: 1060 }}>
+                      <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        {availableAuthors.map(author => (
+                          <div
+                            key={author}
+                            className={`p-2 ${editForm.author === author ? 'bg-primary text-white' : 'hover-bg'}`}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                              setEditForm({...editForm, author});
+                              setShowEditAuthorsDropdown(false);
+                            }}
+                          >
+                            {author}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Dropdown Tamaños */}
+              <div className="mb-3">
+                <label className="form-label">Tamaños</label>
+                <div className="position-relative dropdown-container">
+                  <button 
+                    type="button" 
+                    className={`btn w-100 text-start d-flex justify-content-between align-items-center ${editForm.sizes.length === 0 ? 'btn-outline-danger' : 'btn-outline-primary'}`}
+                    onClick={() => {
+                      setShowEditSizesDropdown(!showEditSizesDropdown);
+                      setShowEditCategoriesDropdown(false);
+                      setShowEditAuthorsDropdown(false);
+                    }}
+                  >
+                    <span>
+                      {editForm.sizes.length === 0 
+                        ? 'Seleccionar tamaños' 
+                        : `${editForm.sizes.length} tamaño(s) seleccionado(s)`}
+                    </span>
+                    <i className={`bi bi-chevron-${showEditSizesDropdown ? 'up' : 'down'}`}></i>
+                  </button>
+                  
+                  {showEditSizesDropdown && (
+                    <div className="position-absolute start-0 end-0 mt-1 p-2 border rounded bg-white shadow-sm" style={{ zIndex: 1060 }}>
+                      <div className="d-flex flex-wrap gap-2 mb-2">
+                        {PREDEFINED_SIZES.map(size => (
+                          <button
+                            key={size}
+                            type="button"
+                            className={`btn btn-sm ${editForm.sizes.includes(size) ? 'btn-primary' : 'btn-outline-secondary'}`}
+                            onClick={() => {
+                              const newSizes = editForm.sizes.includes(size)
+                                ? editForm.sizes.filter(s => s !== size)
+                                : [...editForm.sizes, size];
+                              setEditForm({...editForm, sizes: newSizes});
+                            }}
+                            style={{ minWidth: '100px' }}
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
+                      
+                      <hr className="my-2" />
+                      
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          placeholder="Añadir tamaño personalizado"
+                          value={editCustomSize}
+                          onChange={(e) => setEditCustomSize(e.target.value)}
+                          className="form-control"
+                        />
+                        <button 
+                          className="btn btn-outline-secondary" 
+                          type="button"
+                          onClick={() => {
+                            if (editCustomSize && !editForm.sizes.includes(editCustomSize)) {
+                              setEditForm({
+                                ...editForm,
+                                sizes: [...editForm.sizes, editCustomSize]
+                              });
+                              setEditCustomSize("");
+                            }
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {editForm.sizes.length === 0 && (
+                    <div className="text-danger small">Selecciona al menos un tamaño</div>
+                  )}
+                  
+                  {/* Muestra los tamaños seleccionados */}
+                  <div className="mt-2">
+                    {editForm.sizes.length > 0 && (
+                      <div className="d-flex flex-wrap gap-1">
+                        {editForm.sizes.map(size => (
+                          <span key={size} className="badge bg-primary d-flex align-items-center">
+                            {size}
+                            <button 
+                              type="button" 
+                              className="btn-close btn-close-white ms-2" 
+                              style={{ fontSize: '0.7rem' }}
+                              onClick={() => {
+                                setEditForm({
+                                  ...editForm,
+                                  sizes: editForm.sizes.filter(s => s !== size)
+                                });
+                              }}
+                            ></button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="mb-3">
@@ -776,6 +1177,18 @@ const AdminPanel = () => {
             </div>
           </div>
         </div>
+
+        <datalist id="categoriesList">
+          {availableCategories.map((category, index) => (
+            <option key={index} value={category} />
+          ))}
+        </datalist>
+
+        <datalist id="authorsList">
+          {availableAuthors.map((author, index) => (
+            <option key={index} value={author} />
+          ))}
+        </datalist>
                 
             <div className="modal-footer">
               <button 
@@ -791,7 +1204,8 @@ const AdminPanel = () => {
               isUploading || 
               editForm.images.length === 0 || 
               !editForm.title.trim() ||
-              editForm.sizes.filter(s => s.trim() !== "").length === 0
+              !editForm.category ||
+              editForm.sizes.length === 0
             }
           >
             {isUploading ? (

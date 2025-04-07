@@ -48,22 +48,10 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
             {/* Botón de cierre */}
             <button 
               onClick={onClose} 
-              className="btn-close position-absolute end-0 m-3 bg-white rounded-circle p-2"
+              className="btn-close position-absolute end-0 m-3 bg-transparent rounded-circle p-2"
               style={{ zIndex: 10 }}
               aria-label="Close"
             ></button>
-            
-            {/* Botón de edición para admin */}
-            {isAdmin && (
-              <button 
-                onClick={() => setShowEditModal(true)}
-                className="btn btn-outline-light position-absolute start-0 m-3 rounded-pill d-flex align-items-center gap-2"
-                style={{ zIndex: 10 }}
-              >
-                <FaPencilAlt size={16} />
-                <span>Editar</span>
-              </button>
-            )}
 
             {/* Contenido del modal de visualización */}
           <div className="modal-body p-0">
@@ -97,7 +85,21 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
               </div>
               
               {/* Detalles del cuadro - Versión minimalista */}
-              <div className="col-lg-4">
+              <div className="col-lg-4 position-relative"> {/* Agregar position-relative aquí */}
+                {isAdmin && (
+                  <button 
+                    onClick={() => setShowEditModal(true)}
+                    className="btn btn-outline-dark position-absolute rounded-pill d-flex align-items-center gap-2"
+                    style={{ zIndex: 10,
+                      top: "1rem",
+                      left: "1rem",
+                     }}
+                  >
+                    <FaPencilAlt size={16}/>
+                    <span>Editar</span>
+                  </button>
+                )}
+                
                 <div 
                   className="h-100 p-4 d-flex flex-column justify-content-center" 
                   style={{ backgroundColor: "rgba(255,255,255,0.95)" }}
