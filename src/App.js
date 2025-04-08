@@ -58,12 +58,15 @@ const AppContent = ({ showScrollButton }) => {
   }
 
   return (
-    <div>
-      {/* Header dinámico con autenticación */}
+    <div className="app-wrapper" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>      {/* Header dinámico con autenticación */}
       <Header user={user} />
 
       {/* Rutas */}
-      <main className="container-fluid p-0">
+      <main 
+      className="container-fluid p-0 "
+      style={{ flex: 1 }} // Para que ocupe el espacio restante
+      >
+        {/* Rutas de la app */}
       <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/gallery" element={<Gallery />} />
@@ -94,18 +97,21 @@ const AppContent = ({ showScrollButton }) => {
 // Footer condicional
 const Footer = () => {
   const location = useLocation();
-  const isAuthPage = location.pathname === "/login"; // Verifica si está en la página de autenticación para aplicar estilos
+  const isAuthPage = location.pathname === "/login";
 
   return (
-    <footer className={`text-light text-center py-3 ${isAuthPage ? "fixed-bottom" : ""}`} // Footer fijo en la página de autenticación
+    <footer
+      className="text-light text-center py-3"
       style={{
         backgroundColor: isAuthPage ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.85)",
+        ...(isAuthPage ? { position: "fixed", bottom: 0, width: "100%" } : {})
       }}
     >
       <p>&copy; 2025 D'Colors. Todos los derechos reservados.</p>
     </footer>
   );
 };
+
 
 // Página de Inicio
 const Home = () => (
