@@ -96,9 +96,9 @@ const Gallery = () => {
     const sorted = [...paintings];
     switch (order) {
       case "newest":
-        return sorted.sort((a, b) => b.createdAt - a.createdAt);
+        return sorted.sort((a, b) => b.timestamp?.toDate() - a.timestamp?.toDate());
       case "oldest":
-        return sorted.sort((a, b) => a.createdAt - b.createdAt);
+        return sorted.sort((a, b) => a.timestamp?.toDate() - b.timestamp?.toDate());
       case "titleAsc":
         return sorted.sort((a, b) => a.title?.localeCompare(b.title));
       case "titleDesc":
