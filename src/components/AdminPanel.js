@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { db, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from "../firebaseConfig";
+import { db, collection, getDocs, addDoc, getDoc, doc, updateDoc, deleteDoc, serverTimestamp } from "../firebaseConfig";
 
 // Tamaños predefinidos
 const PREDEFINED_SIZES = [
@@ -304,7 +304,9 @@ const AdminPanel = () => {
       };
   
       const docRef = await addDoc(collection(db, "paintings"), paintingData);
-      setPaintings(prev => [...prev, { id: docRef.id, ...paintingData }]);
+      const docSnap = await getDoc(docRef); // Obtener el documento recién creado y con el timestamp resuelto
+      // Añadir el nuevo cuadro a la lista de cuadros
+      setPaintings(prev => [...prev, { id: docSnap.id, ...docSnap.data() }]);
 
       // Actualiza la lista de autores disponibles si es nuevo
       if (newPainting.author.trim() && !availableAuthors.includes(newPainting.author.trim())) {
@@ -858,6 +860,7 @@ const AdminPanel = () => {
                           <strong>{painting.title}</strong>
                           <div className="text-muted small">
                             {painting.category} • 
+                            {painting.author} • 
                             {painting.sizes?.join(", ")}
                             {painting.reference && (
                               <> • <span className="fw-medium">Ref: {painting.reference}</span></>
@@ -1127,7 +1130,7 @@ const AdminPanel = () => {
                 /> 
 
                 <button 
-                  className={`btn ${editForm.images.length >= 4 ? 'btn-outline-danger' : 'btn-outline-secondary'} mb-2 ms-2 `}
+                  className={`btn ${editForm.images.length > 4 ? 'btn-outline-danger' : 'btn-outline-secondary'} mb-2 ms-2 `}
                   onClick={() => document.getElementById('editFileInput').click()}
                   disabled={editForm.images.length >= 4 || isUploading}
                 >
