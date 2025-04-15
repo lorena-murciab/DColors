@@ -12,6 +12,15 @@ const Header = () => {
   // Determinar si estamos en la ruta Home ("/") o Gallery ("/gallery")
   const isHomeOrGallery = location.pathname === "/" || location.pathname === "/gallery";
 
+  const commonLinks = (
+    <>
+      <Link to="/">Inicio</Link>
+      <Link to="/gallery">Galería</Link>
+      <Link to="/about">Sobre Nosotros</Link>
+      {user && <Link to="/admin">Admin</Link>}
+    </>
+  );  
+
   // Manejo del scroll para mostrar/ocultar el header pequeño
   useEffect(() => {
     if (!isHomeOrGallery) {
@@ -56,11 +65,18 @@ const Header = () => {
         <div id="large-header" className="large-header">
           <img src="/Dcolors-logo-white-full.png" alt="Logo" className="large-logo" />
           <nav className="nav-row" style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.15)', // Fondo claro transparente
+            backgroundColor: 'rgb(38, 38, 38)', // Fondo claro transparente
             backdropFilter: 'blur(5px)', // Efecto de vidrio esmerilado
             padding: '0.8rem 2rem',
             width: '100%',
-            borderTop: '1px solid rgba(255, 255, 255, 0.1)' // Línea sutil de separación
+            marginTop: 10,
+            // Fuente más bonita
+            /*
+            fontFamily: 'Playfair Display, serif',
+            fontSize: '1.2rem',*/
+            fontFamily: 'Arial, sans-serif',
+            fontSize: '1rem',
+            // borderTop: '1px solid rgba(255, 255, 255, 0.1)' // Línea sutil de separación
           }}>
             <Link to="/" className="nav-link">INICIO</Link>
             <Link to="/gallery" className="nav-link">GALERÍA</Link>
@@ -79,15 +95,12 @@ const Header = () => {
         <div className="small-header">
           <img src="/logo_inicio1.png" alt="Logo" className="small-logo" />
           <nav>
-            <Link to="/">Inicio</Link>
-            <Link to="/gallery">Galería</Link>
-            <Link to="/about">Sobre Nosotros</Link>
+            {commonLinks}
             {user ? (
-              <>
-                <Link to="/admin">Admin</Link>
-                <button onClick={logout} className="btn custom-btn m-2">Cerrar Sesión</button>
-              </>
-            ) : null}
+              <button onClick={logout} className="btn custom-btn m-2">Cerrar Sesión</button>
+            ) : (
+              <Link to="/admin" className="nav-link">ADMIN</Link>
+            )}
           </nav>
         </div>
       )}
