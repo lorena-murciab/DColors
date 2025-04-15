@@ -2,10 +2,34 @@ import React, { useState, useEffect } from "react";
 import { db, collection, getDocs, query, orderBy, limit } from "../firebaseConfig";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+import { useNavigate } from "react-router-dom";
+
 
 const LatestPaintings = () => {
   const [paintings, setPaintings] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const [isFading, setIsFading] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsFading(true); // inicia el fade out
+  
+      setTimeout(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % paintings.length);
+        setIsFading(false); // fade in del nuevo contenido
+      }, 400); // dura lo mismo que el CSS transition
+    }, 5000);
+  
+    return () => clearInterval(interval);
+  }, [paintings]);  
+
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate('/gallery', { state: { paintingId: currentPainting.id } });
+  };
+
 
   useEffect(() => {
     const fetchLatestPaintings = async () => {
@@ -24,13 +48,14 @@ const LatestPaintings = () => {
     fetchLatestPaintings();
   }, []);
 
+  /*
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % paintings.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [paintings]);
-
+  */
 
   const currentPainting = paintings[currentIndex] || {};
 
@@ -38,7 +63,9 @@ const LatestPaintings = () => {
     <section className="py-5" style={{ backgroundColor: '#f8f9fa', position: 'relative' }}>
       <div className="container">
         {paintings.length > 0 ? (
-          <>
+          <div
+          className={`fade-wrapper ${isFading ? 'fade-out' : 'fade-in'}`}
+          >
             <div className="row align-items-center">
               {/* Columna de texto */}
               <div className="col-md-5 mb-4 mb-md-0">
@@ -83,25 +110,28 @@ const LatestPaintings = () => {
               {/* Columna de imagen con flechas */}
               <div className="col-md-7 position-relative">
 
-                <div style={{
+                <div 
+                onClick={handleClick}
+                style={{
                   position: 'relative',
                   paddingTop: '75%',
                   backgroundColor: 'transparent',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  cursor: 'pointer',
                 }}>
-                  <img
-                    src={currentPainting.images?.[0] || currentPainting.imageBase64}
-                    alt={currentPainting.title}
-                    style={{
-                      position: 'absolute',
-                      top: '0',
-                      left: '0',
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain',
-                      transition: 'transform 0.5s ease'
-                    }}
-                  />
+                    <img
+                      src={currentPainting.images?.[0] || currentPainting.imageBase64}
+                      alt={currentPainting.title}
+                      style={{
+                        position: 'absolute',
+                        top: '0',
+                        left: '0',
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        transition: 'transform 0.5s ease'
+                      }}
+                    />
                 </div>
               </div>
             </div>
@@ -129,7 +159,7 @@ const LatestPaintings = () => {
                 </div>
               </div>
             </div>
-          </>
+          </div>
         ) : (
           <p className="text-muted text-center py-4">No hay obras recientes</p>
         )}

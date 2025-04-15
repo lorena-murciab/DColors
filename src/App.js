@@ -17,6 +17,7 @@ import "./App.css";
 // Iconos
 import { IoIosArrowUp } from "react-icons/io";
 import { FaWhatsapp, FaPhone } from "react-icons/fa"; // Importar iconos
+import CategoriesPreview from "./components/CategoriesPreview";
 
 
 const App = () => {
@@ -123,20 +124,34 @@ const Home = () => (
 
     {/* About Section */}
     <section className="container my-5" id="about">
-      <h2 className="text-center">Sobre Nosotros</h2>
-      <p className="text-center">Somos una empresa dedicada a la exhibición y venta de cuadros artísticos únicos.</p>
-    </section>
+      <h2 className="text-center mb-4">Sobre Nosotros</h2>
+      <div className="row">
+        <div className="col-md-10 offset-md-1">
+          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', textAlign: 'justify' }}>
+            Con más de <strong>30 años de experiencia</strong> en el sector, nos dedicamos a la <strong>creación, exposición y distribución de cuadros artísticos únicos</strong>, elaborados por nuestros propios artistas. Cada obra refleja un estilo personal, auténtico y exclusivo, pensado para emocionar y transformar cualquier espacio.
+          </p>
+          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', textAlign: 'justify' }}>
+            Nuestra empresa es <strong>referente nacional</strong> en el mundo del arte decorativo, con presencia en <strong>multitud de tiendas por toda España</strong> y capacidad de distribución en la <strong>Unión Europea</strong>. Gracias a nuestra red y logística, puedes disfrutar de nuestras obras estés donde estés.
+          </p>
+          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', textAlign: 'justify' }}>
+            Contamos con un equipo experto en <strong>asesoramiento artístico</strong>, dispuesto a ayudarte a encontrar el cuadro perfecto para tu hogar, negocio o colección. Disponemos de una gran variedad de estilos, formatos y temáticas, con la garantía de que cada pieza es <strong>original, exclusiva y de autor</strong>.
+          </p>
+          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', textAlign: 'justify' }}>
+            Si buscas <strong>arte con alma</strong>, creado por manos expertas y con distribución nacional e internacional, estás en el lugar adecuado.
+          </p>
 
-    {/* Gallery Section */}
-    <section id="gallery" className="bg-light py-5">
-      <div className="container">
-        <h2 className="text-center">Nuestra Galería</h2>
-        <p className="text-center">Explora nuestras obras destacadas.</p>
-        <Link to="/gallery" className="btn btn-dark align-center">
-          Ver Galería
-        </Link>
+          <div className="text-center mt-4">
+            <a href="#gallery" className="btn btn-outline-dark px-4 py-2" style={{ fontWeight: 500 }}>
+              Descubre nuestras obras
+            </a>
+          </div>
+        </div>
       </div>
     </section>
+
+
+    {/* Gallery Section */}
+    <CategoriesPreview />
 
     {/* Contact Section */}
     <section id="contact" className="container my-5 text-center">

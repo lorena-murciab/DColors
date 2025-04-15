@@ -4,12 +4,28 @@ import "../App.css"; // Estilos personalizados
 import { db, collection, getDocs } from "../firebaseConfig";
 import PaintingDetail from "./PaintingDetail";
 
+import { useLocation } from 'react-router-dom';
+
 const Gallery = () => {
   const [paintings, setPaintings] = useState([]);
   const [filteredPaintings, setFilteredPaintings] = useState([]);
   const [categories, setCategories] = useState(["all"]);
   const [authors, setAuthors] = useState(["all"]);
   const [sizes, setSizes] = useState([]);
+
+  const location = useLocation();
+  const paintingIdFromState = location.state?.paintingId;
+
+  useEffect(() => {
+    if (paintingIdFromState) {
+      const painting = paintings.find(p => p.id === paintingIdFromState);
+      if (painting) {
+        setSelectedPainting(painting);
+      }
+    }
+  }, [paintingIdFromState, paintings]);
+  
+
   
   // Estados para filtros
   const [selectedCategory, setSelectedCategory] = useState("all");
