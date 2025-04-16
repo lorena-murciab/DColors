@@ -18,6 +18,7 @@ const AdminPanel = () => {
     images: [],
     customSize: "",
     author: "",
+    points: "",
   });
   
   const [newCategoryInput, setNewCategoryInput] = useState("");
@@ -35,6 +36,7 @@ const AdminPanel = () => {
     sizes: false,
     category: false,
     author: false,
+    points: false,
   });
 
   // Cargar cuadros ya creados desde Firestore
@@ -301,6 +303,8 @@ const AdminPanel = () => {
         images: newPainting.images,
         author: newPainting.author.trim(),
         timestamp: serverTimestamp(),
+        // puede haber o no el campo points, y es String
+        points: newPainting.points || "",
       };
   
       const docRef = await addDoc(collection(db, "paintings"), paintingData);
@@ -327,6 +331,7 @@ const AdminPanel = () => {
         images: [],
         customSize: "",
         author: "",
+        points: "",
       });
       setValidationErrors({
         title: false,
@@ -358,6 +363,7 @@ const AdminPanel = () => {
     reference: "",
     images: [],
     author: "",
+    points: "",
   });
   
   // Al hacer clic en Editar
@@ -370,6 +376,7 @@ const AdminPanel = () => {
       reference: painting.reference,
       images: painting.images || [],
       author: painting.author || "",
+      points: painting.points || "",
     });
       // Resetear estados de dropdown
       setShowEditSizesDropdown(false);
@@ -426,7 +433,8 @@ const AdminPanel = () => {
         sizes: validSizes, // Usamos solo los tamaños válidos
         reference: editForm.reference.trim(),
         images: editForm.images,
-        timestamp: serverTimestamp() // Actualizamos la marca de tiempo
+        timestamp: serverTimestamp(), // Actualizamos la marca de tiempo
+        points: editForm.points || "",
       });
       
       if (editForm.author.trim() && !availableAuthors.includes(editForm.author.trim())) {
@@ -445,7 +453,8 @@ const AdminPanel = () => {
           author: editForm.author.trim(),
           sizes: validSizes,
           reference: editForm.reference.trim(),
-          images: editForm.images
+          images: editForm.images,
+          points: editForm.points || "",
         } : p
       ));
       
@@ -739,6 +748,17 @@ const AdminPanel = () => {
             </div>
           </div>
 
+          <div className="col-md-3 mt-2">
+            <label className="form-label">Puntos</label>
+            <input
+              type="text"
+              placeholder="Ej: 500"
+              value={newPainting.points}
+              onChange={(e) => setNewPainting({ ...newPainting, points: e.target.value })}
+              className="form-control"
+            />
+          </div>
+
           {/* Selección de imágenes */}
           <div className="mt-4">
             <label className="form-label">Imágenes (máx. 4)</label>
@@ -864,6 +884,9 @@ const AdminPanel = () => {
                             {painting.sizes?.join(", ")}
                             {painting.reference && (
                               <> • <span className="fw-medium">Ref: {painting.reference}</span></>
+                            )}
+                            {painting.points && (
+                              <> • <span className="fw-medium">Puntos: {painting.points}</span></>
                             )}
                           </div>
                         </div>
@@ -1113,6 +1136,18 @@ const AdminPanel = () => {
                 {!editForm.reference.trim() && (
                   <div className="invalid-feedback">La referencia es obligatoria</div>
                 )}
+              </div>
+
+
+              <div className="mb-3">
+                <label className="form-label">Puntos</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={editForm.points}
+                  onChange={(e) => setEditForm({...editForm, points: e.target.value})}
+                />
+                <div className="form-text small">Guía de precios para administrador</div>
               </div>
             </div>
 
