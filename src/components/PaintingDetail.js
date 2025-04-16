@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import { Carousel } from "react-bootstrap";
 import { FaPencilAlt } from "react-icons/fa";
 import { onAuthStateChanged, auth } from "../firebaseConfig";
-import EditPaintingModal from "./EditPaintingModal"; // Importar el modal de edición
+import EditPaintingModal from "./EditPaintingModal";
 
-import { FaWhatsapp } from "react-icons/fa"; // Importar iconos de WhatsApp
+import { FaWhatsapp } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa"; // Added for visible close icon
 
 const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentPainting, setCurrentPainting] = useState(painting);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   // Sincronizar cuando el prop painting cambie
   useEffect(() => {
@@ -21,6 +23,15 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
       setIsAdmin(!!user);
     });
     return () => unsubscribe();
+  }, []);
+
+  // Actualizar estado isMobile cuando cambia el tamaño de la ventana
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const handleSaveSuccess = (updatedPainting) => {
@@ -45,97 +56,111 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
         backdropFilter: "blur(8px)",
         zIndex: 1040
       }}>
-        <div className="modal-dialog modal-xl" style={{ maxWidth: "95vw" }}>
+        <div className="modal-dialog modal-xl" style={{ maxWidth: isMobile ? "100vw" : "95vw", margin: isMobile ? "0" : "1.75rem auto" }}>
           <div className="modal-content border-0 bg-transparent">
-            {/* Botón de cierre */}
+            {/* Botón de cierre - Mejorado para móviles */}
             <button 
               onClick={onClose} 
-              className="btn-close position-absolute end-0 m-3 bg-transparent rounded-circle p-2"
-              style={{ zIndex: 10 }}
+              className={`position-absolute end-0 m-3 rounded-circle d-flex justify-content-center align-items-center ${isMobile ? 'btn btn-light' : 'btn-close bg-transparent p-2'}`}
+              style={{ 
+                zIndex: 1050,
+                top: isMobile ? "10px" : "auto",
+                width: isMobile ? "36px" : "auto",
+                height: isMobile ? "36px" : "auto",
+              }}
               aria-label="Close"
-            ></button>
+            >
+              {isMobile && <FaTimes size={18} />}
+            </button>
 
             {/* Contenido del modal de visualización */}
-          <div className="modal-body p-0">
-            <div className="row g-0">
-              {/* Galería de imágenes */}
-              <div className="col-lg-8">
-              {currentPainting.images?.length > 0 ? (
+            <div className="modal-body p-0">
+              <div className={`row g-0 ${isMobile ? 'flex-column' : ''}`}>
+                {/* Galería de imágenes */}
+                <div className={isMobile ? "col-12" : "col-lg-8"}>
+                  {currentPainting.images?.length > 0 ? (
                     <Carousel>
-                    {currentPainting.images.map((img, index) => (
-                      <Carousel.Item key={index}>
-                        <img
-                          src={img}
-                          alt={`${currentPainting.title} - ${index + 1}`}
-                          className="img-fluid w-100"
-                          style={{ height: "80vh", objectFit: "contain" }}
-                        />
-                      </Carousel.Item>
-                    ))}
-                  </Carousel>
-                ) : (
-                  <div 
-                    className="d-flex justify-content-center align-items-center bg-light" 
-                    style={{ height: "85vh" }}
-                  >
-                    <div className="text-center text-muted">
-                      <i className="bi bi-image fs-1"></i>
-                      <p className="mt-2">No hay imágenes disponibles</p>
+                      {currentPainting.images.map((img, index) => (
+                        <Carousel.Item key={index}>
+                          <img
+                            src={img}
+                            alt={`${currentPainting.title} - ${index + 1}`}
+                            className="img-fluid w-100"
+                            style={{ 
+                              height: isMobile ? "50vh" : "80vh", 
+                              objectFit: "contain" 
+                            }}
+                          />
+                        </Carousel.Item>
+                      ))}
+                    </Carousel>
+                  ) : (
+                    <div 
+                      className="d-flex justify-content-center align-items-center bg-light" 
+                      style={{ height: isMobile ? "50vh" : "85vh" }}
+                    >
+                      <div className="text-center text-muted">
+                        <i className="bi bi-image fs-1"></i>
+                        <p className="mt-2">No hay imágenes disponibles</p>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Detalles del cuadro */}
-              <div className="col-lg-4 position-relative">
-                {isAdmin && (
-                  <button 
-                    onClick={() => setShowEditModal(true)}
-                    className="btn btn-outline-dark position-absolute rounded-pill d-flex align-items-center gap-2"
-                    style={{ zIndex: 10,
-                      top: "1rem",
-                      left: "1rem",
-                     }}
-                  >
-                    <FaPencilAlt size={16}/>
-                    <span>Editar</span>
-                  </button>
-                )}
+                  )}
+                </div>
                 
-                <div 
-                  className="h-100 p-4 d-flex flex-column justify-content-center" 
-                  style={{ backgroundColor: "#f8f9fa" }}
-                >
-                  <h1 className="display-5 fw-light mb-4 pb-2">{currentPainting.title}</h1>
+                {/* Detalles del cuadro */}
+                <div className={isMobile ? "col-12" : "col-lg-4"} style={{ position: "relative" }}>
+                  {isAdmin && (
+                    <button 
+                      onClick={() => setShowEditModal(true)}
+                      className="btn btn-outline-dark position-absolute rounded-pill d-flex align-items-center gap-2"
+                      style={{ 
+                        zIndex: 10,
+                        top: "1rem",
+                        left: "1rem",
+                      }}
+                    >
+                      <FaPencilAlt size={16}/>
+                      <span>Editar</span>
+                    </button>
+                  )}
+                  
+                  <div 
+                    className={`h-100 ${isMobile ? 'p-3' : 'p-4'} d-flex flex-column justify-content-${isMobile ? 'start' : 'center'}`} 
+                    style={{ backgroundColor: "#f8f9fa" }}
+                  >
+                    <h1 className={`${isMobile ? 'fs-3' : 'display-5'} fw-light mb-${isMobile ? '3' : '4'} pb-${isMobile ? '1' : '2'}`}>
+                      {currentPainting.title}
+                    </h1>
 
-                  <div className="mb-3">
+                    <div className={`mb-${isMobile ? '2' : '3'}`}>
                       <h6 className="text-uppercase text-muted small mb-2">Autor</h6>
-                      <p className="fs-5">{currentPainting.author || "—"}</p>
+                      <p className={isMobile ? "fs-6" : "fs-5"}>{currentPainting.author || "—"}</p>
                     </div>
                   
-                  <div className="mb-4">
-                    <h6 className="text-uppercase text-muted small mb-2">Categoría</h6>
-                    <p className="fs-5">{currentPainting.category || "—"}</p>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <h6 className="text-uppercase text-muted small mb-2">Tamaños disponibles</h6>
-                    <div className="d-flex flex-wrap gap-2">
-                      {currentPainting.sizes?.length > 0 ? (
-                        currentPainting.sizes.map((size, i) => (
-                          <span key={i} className="badge bg-dark bg-opacity-10 text-dark rounded-pill px-3 py-2">
-                            {size}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-muted">—</span>
-                      )}
+                    <div className={`mb-${isMobile ? '3' : '4'}`}>
+                      <h6 className="text-uppercase text-muted small mb-2">Categoría</h6>
+                      <p className={isMobile ? "fs-6" : "fs-5"}>{currentPainting.category || "—"}</p>
                     </div>
-                  </div>
+                    
+                    <div className={`mb-${isMobile ? '3' : '4'}`}>
+                      <h6 className="text-uppercase text-muted small mb-2">Tamaños disponibles</h6>
+                      <div className="d-flex flex-wrap gap-2">
+                        {currentPainting.sizes?.length > 0 ? (
+                          currentPainting.sizes.map((size, i) => (
+                            <span key={i} className="badge bg-dark bg-opacity-10 text-dark rounded-pill px-3 py-2">
+                              {size}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-muted">—</span>
+                        )}
+                      </div>
+                    </div>
 
-                  <div className="mb-4 pt-2">
-                    <h6 className="text-uppercase text-muted small mb-2">Referencia</h6>
-                    <p className="fs-7">{currentPainting.reference || "—"}</p>
+                    <div className={`mb-${isMobile ? '3' : '4'} pt-${isMobile ? '1' : '2'}`}>
+                      <h6 className="text-uppercase text-muted small mb-2">Referencia</h6>
+                      <p className="fs-7">{currentPainting.reference || "—"}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -143,7 +168,7 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
           </div>
         </div>
       </div>
-    </div>
+
       {/* Modal de edición */}
       {showEditModal && (
         <EditPaintingModal
@@ -160,15 +185,16 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
         rel="noopener noreferrer"
         className="btn btn-success position-fixed d-flex align-items-center gap-2 shadow"
         style={{
-          bottom: "2rem",
-          right: "2rem",
+          bottom: isMobile ? "1rem" : "2rem",
+          right: isMobile ? "1rem" : "2rem",
           zIndex: 1050,
           borderRadius: "2rem",
-          padding: "0.75rem 1.5rem"
+          padding: isMobile ? "0.5rem 1rem" : "0.75rem 1.5rem",
+          fontSize: isMobile ? "0.9rem" : "1rem"
         }}
       >
-        <FaWhatsapp size={20} />
-        <span>Contáctanos</span>
+        <FaWhatsapp size={isMobile ? 18 : 20} />
+        <span>{isMobile ? "Consultar" : "Contáctanos"}</span>
       </a>
     </>
   );

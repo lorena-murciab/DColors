@@ -158,13 +158,25 @@ const Gallery = () => {
     ));
   };
 
+  // Función para determinar si es dispositivo móvil según ancho de ventana
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  // Actualizar estado isMobile cuando cambia el tamaño de la ventana
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div className="container my-5">
       {/* 🔹 Barra de filtros minimalista */}
-      <div className="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-        <h4 className="m-0">Galería de obras</h4>
+      <div className={`d-flex ${isMobile ? 'flex-column' : 'justify-content-between'} align-items-${isMobile ? 'start' : 'center'} mb-4 border-bottom pb-3`}>
+        <h4 className={`m-0 ${isMobile ? 'mb-3' : ''}`}>Galería de obras</h4>
         
-        <div className="d-flex align-items-center">
+        <div className={`d-flex align-items-center ${isMobile ? 'w-100 justify-content-between' : ''}`}>
           {/* Indicador de filtros activos y botón de reseteo */}
           {hasActiveFilters && (
             <button 
@@ -194,16 +206,16 @@ const Gallery = () => {
               <input
                 type="text"
                 className="form-control border-0 ps-0 border-bottom rounded-0"
-                placeholder="Buscar por título, referencia, autor o categoría..."
+                placeholder={isMobile ? "Buscar..." : "Buscar por título, referencia, autor o categoría..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   background: 'transparent',
                   boxShadow: 'none',
-                  paddingLeft: '1.75rem'
+                  paddingLeft: isMobile ? '1.75rem' : '0'
                 }}
               />
-              <i className="bi bi-search position-absolute start-0 top-50 translate-middle-y"></i>
+              <i className={`bi bi-search position-absolute ${isMobile ? '' : 'start-0'} top-50 translate-middle-y`}></i>
               {searchTerm && (
                 <button 
                   className="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0"
@@ -220,7 +232,7 @@ const Gallery = () => {
           </div>
 
 
-          <div className="col-md-3 mb-3">
+          <div className={`col-${isMobile ? '6' : 'md-3'} mb-3`}>
             <select 
               className="form-select form-select-sm border-0" 
               value={selectedCategory}
@@ -228,13 +240,13 @@ const Gallery = () => {
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
-                  {cat === "all" ? "Todas las categorías" : cat}
+                  {cat === "all" ? (isMobile ? "Categorías" : "Todas las categorías") : cat}
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="col-md-3 mb-3">
+          <div className={`col-${isMobile ? '6' : 'md-3'} mb-3`}>
             <select 
               className="form-select form-select-sm border-0" 
               value={selectedAuthor}
@@ -242,13 +254,13 @@ const Gallery = () => {
             >
               {authors.map((author) => (
                 <option key={author} value={author}>
-                  {author === "all" ? "Todos los autores" : author}
+                  {author === "all" ? (isMobile ? "Autores" : "Todos los autores") : author}
                 </option>
               ))}
             </select>
           </div>
           
-          <div className="col-md-3 mb-3">
+          <div className={`col-${isMobile ? '6' : 'md-3'} mb-3`}>
             <select 
               className="form-select form-select-sm border-0" 
               value={selectedSize}
@@ -256,20 +268,20 @@ const Gallery = () => {
             >
               {sizes.map((size) => (
                 <option key={size} value={size}>
-                  {size === "all" ? "Todas las medidas" : size}
+                  {size === "all" ? (isMobile ? "Medidas" : "Todas las medidas") : size}
                 </option>
               ))}
             </select>
           </div>
           
-          <div className="col-md-3 mb-3">
+          <div className={`col-${isMobile ? '6' : 'md-3'} mb-3`}>
             <select 
               className="form-select form-select-sm border-0" 
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value)}
             >
-              <option value="newest">Más recientes primero</option>
-              <option value="oldest">Más antiguos primero</option>
+              <option value="newest">{isMobile ? "Más recientes" : "Más recientes primero"}</option>
+              <option value="oldest">{isMobile ? "Más antiguos" : "Más antiguos primero"}</option>
               <option value="titleAsc">Título (A-Z)</option>
               <option value="titleDesc">Título (Z-A)</option>
               <option value="authorAsc">Autor (A-Z)</option>
@@ -287,10 +299,10 @@ const Gallery = () => {
       )}
 
       {/* 🔹 Galería de cuadros */}
-      <div className="row">
+      <div className={`row ${isMobile ? 'g-2' : ''}`}>
         {filteredPaintings.length > 0 ? (
           filteredPaintings.map((painting) => (
-            <div key={painting.id} className="col-lg-4 col-md-6 mb-4">
+            <div key={painting.id} className={`col-${isMobile ? '6' : 'lg-4 col-md-6'} mb-${isMobile ? '2' : '4'}`}>
               <div
                 className="image-container shadow-sm rounded"
                 onClick={() => setSelectedPainting(painting)}
@@ -299,17 +311,16 @@ const Gallery = () => {
                   src={getMainImage(painting)}
                   className="w-100 rounded"
                   alt={painting.title}
-                  style={{ objectFit: "cover", height: "250px" }}
+                  style={{ objectFit: "cover", height: isMobile ? "180px" : "250px" }}
                 />
-                <div className="overlay p-3">
-                  <h5 className="title mb-1">{painting.title}</h5>
+                <div className={`overlay p-${isMobile ? '2' : '3'}`}>
+                  <h5 className={`title mb-1 ${isMobile ? 'fs-6 text-truncate' : ''}`}>{painting.title}</h5>
                 </div>
-                
               </div>
             </div>
           ))
         ) : (
-          <div className="col-12 text-center p-5">
+          <div className={`col-12 text-center p-${isMobile ? '3' : '5'}`}>
             <p className="mb-3">No hay obras que coincidan con los filtros seleccionados.</p>
             <button className="btn btn-sm btn-outline-dark" onClick={resetFilters}>
               Quitar filtros
