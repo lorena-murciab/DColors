@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext"; // Importamos el contexto de autenticación
 import { auth, signOut } from "../firebaseConfig"; // Importamos la función de cierre de sesión
@@ -9,7 +9,7 @@ const Header = () => {
   const [showSmallHeader, setShowSmallHeader] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const isMounted = useRef(false);
+  // const isMounted = useRef(false);
 
   // Determinar si estamos en la ruta Home ("/") o Gallery ("/gallery")
   const isHomeOrGallery = location.pathname === "/" || location.pathname === "/gallery";
@@ -141,19 +141,31 @@ const Header = () => {
           <nav style={{
             flex: 1,
             display: 'flex',
-            justifyContent: 'center',  // Centrar horizontalmente
-            alignItems: 'center',      // Centrar verticalmente
-            gap: '2rem',               // Espacio entre elementos
-            paddingRight: '80px'       // Compensar el espacio del logo
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '2rem',
+            paddingRight: '80px'
           }}>
-            <Link to="/">Inicio</Link>
-            <Link to="/gallery">Galería</Link>
-            <Link to="/#about" onClick={handleSectionClick("about")}>Sobre Nosotros</Link>
-            <Link to="/#contact" onClick={handleSectionClick("contact")}>Contacto</Link>
+            <Link to="/" className="small-nav-link">Inicio</Link>
+            <Link to="/gallery" className="small-nav-link">Galería</Link>
+            <Link 
+              to="/#about" 
+              onClick={handleSectionClick("about")} 
+              className="small-nav-link"
+            >
+              Sobre Nosotros
+            </Link>
+            <Link 
+              to="/#contact" 
+              onClick={handleSectionClick("contact")} 
+              className="small-nav-link"
+            >
+              Contacto
+            </Link>
             {user && (
               <>
-                <Link to="/admin">Administración</Link>
-                <button onClick={logout} className="btn custom-btn">Cerrar Sesión</button>
+                <Link to="/admin" className="small-nav-link">Administración</Link>
+                <button onClick={logout} className="small-logout-btn">Cerrar Sesión</button>
               </>
             )}
           </nav>

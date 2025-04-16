@@ -180,6 +180,31 @@ html, body, #root {
   width: 100%;
 }
 
+/* Estilos específicos para el header pequeño */
+.small-nav-link {
+  color: #ffffff !important;
+  text-decoration: none !important;
+  transition: color 0.3s ease;
+  font-size: 1rem; /* Mismo tamaño que el grande */
+}
+
+.small-nav-link:hover {
+  color: #d4af37 !important; /* Mismo color dorado que el grande */
+}
+
+.small-logout-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  font-size: 1rem; /* Mismo tamaño que los enlaces */
+}
+
+.small-logout-btn:hover {
+  color: #d4af37 !important; /* Mismo color dorado que los enlaces */
+}
+
 /* Botón de logout */
 .logout-btn {
   background-color: rgba(255, 255, 255, 0.1);

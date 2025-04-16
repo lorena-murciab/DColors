@@ -55,20 +55,24 @@ const AppContent = ({ showScrollButton }) => {
 
   // Mientras carga el usuario, mostramos un "cargando..."
   if (loading) {
-    return <div>Cargando...</div>;
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="app-wrapper" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>      {/* Header dinámico con autenticación */}
+    <div className="app-wrapper d-flex flex-column min-vh-100">      
+      {/* Header dinámico con autenticación */}
       <Header user={user} />
 
       {/* Rutas */}
-      <main 
-      className="container-fluid p-0 "
-      style={{ flex: 1 }} // Para que ocupe el espacio restante
-      >
+      <main className="container-fluid p-0 flex-grow-1">
         {/* Rutas de la app */}
-      <Routes>
+        <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/admin" element={user ? <AdminPanel /> : <Navigate to="/login" />} />
@@ -87,8 +91,25 @@ const AppContent = ({ showScrollButton }) => {
           className="back-to-top show"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           title="Volver arriba"
+          style={{
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
+            zIndex: 1000,
+            width: "40px",
+            height: "40px",
+            borderRadius: "50%",
+            background: "#e0a965",
+            color: "white",
+            border: "none",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.3)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: "pointer"
+          }}
         >
-          <IoIosArrowUp />
+          <IoIosArrowUp size={20} />
         </button>
       )}
     </div>
@@ -102,13 +123,13 @@ const Footer = () => {
 
   return (
     <footer
-      className="text-light text-center py-3"
+      className="text-light text-center py-3 w-100"
       style={{
         backgroundColor: isAuthPage ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.85)",
         ...(isAuthPage ? { position: "fixed", bottom: 0, width: "100%" } : {})
       }}
     >
-      <p>&copy; 2025 D'Colors. Todos los derechos reservados.</p>
+      <p className="mb-0">&copy; 2025 D'Colors. Todos los derechos reservados.</p>
     </footer>
   );
 };
@@ -123,22 +144,22 @@ const Home = () => (
     </section>
 
     {/* About Section */}
-    <section className="container my-5 text-center" id="about">
-    <h2 className="mb-3">Sobre Nosotros</h2>
-    <div className="mx-auto mb-4" style={{ width: '80px', height: '2px', background: '#e0a965' }} />
-    <p className="text-muted mb-5">Más de 30 años creando arte con alma</p>
-        <div className="row">
-        <div className="col-md-10 offset-md-1">
-          <p className="text-justify mb-4">
+    <section className="container my-4 my-md-5 px-3 px-md-0 text-center" id="about">
+      <h2 className="mb-3">Sobre Nosotros</h2>
+      <div className="mx-auto mb-4" style={{ width: '80px', height: '2px', background: '#e0a965' }} />
+      <p className="text-muted mb-4 mb-md-5">Más de 30 años creando arte con alma</p>
+      <div className="row">
+        <div className="col-12 col-md-10 offset-md-1">
+          <p className="text-start text-md-justify mb-4">
             Con más de <strong>30 años de experiencia</strong> en el sector, nos dedicamos a la <strong>creación, exposición y distribución de cuadros artísticos únicos</strong>, elaborados por nuestros propios artistas. Cada obra refleja un estilo personal, auténtico y exclusivo, pensado para emocionar y transformar cualquier espacio.
           </p>
-          <p className="text-justify mb-4">
+          <p className="text-start text-md-justify mb-4">
             Nuestra empresa es <strong>referente nacional</strong> en el mundo del arte decorativo, con presencia en <strong>multitud de tiendas por toda España</strong> y capacidad de distribución en la <strong>Unión Europea</strong>. Gracias a nuestra red y logística, puedes disfrutar de nuestras obras estés donde estés.
           </p>
-          <p className="text-justify mb-4">
+          <p className="text-start text-md-justify mb-4">
             Contamos con un equipo experto en <strong>asesoramiento artístico</strong>, dispuesto a ayudarte a encontrar el cuadro perfecto para tu hogar, negocio o colección. Disponemos de una gran variedad de estilos, formatos y temáticas, con la garantía de que cada pieza es <strong>original, exclusiva y de autor</strong>.
           </p>
-          <p className="text-justify">
+          <p className="text-start text-md-justify">
             Si buscas <strong>arte con alma</strong>, creado por manos expertas y con distribución nacional e internacional, estás en el lugar adecuado.
           </p>
         </div>
@@ -150,28 +171,26 @@ const Home = () => (
     <CategoriesPreview />
 
     {/* Contact Section */}
-    <section id="contact" className="container my-5 text-center">
+    <section id="contact" className="container my-4 my-md-5 px-3 px-md-0 text-center">
       <h2 className="mb-3">Contáctanos</h2>
       <div className="mx-auto mb-4" style={{ width: '80px', height: '2px', background: '#e0a965' }} />
       <p className="text-muted">Estamos disponibles para responder cualquier consulta.</p>
 
-      <div className="d-flex flex-column flex-md-row justify-content-center gap-4 mt-4">
-
+      <div className="d-flex flex-column flex-md-row justify-content-center gap-3 gap-md-4 mt-4">
         {/* WhatsApp Contact */}
         <a href="https://wa.me/+34692688615" target="_blank" rel="noopener noreferrer"
-          className="text-dark text-decoration-none d-flex align-items-center gap-2">
+          className="text-dark text-decoration-none d-flex align-items-center justify-content-center gap-2 mb-3 mb-md-0">
           <FaWhatsapp size={20} />
           <span>Escríbenos por WhatsApp</span>
         </a>
 
         {/* Teléfono Contact */}
-        <div className="text-dark d-flex align-items-center gap-2">
+        <div className="text-dark d-flex align-items-center justify-content-center gap-2">
           <FaPhone size={20} />
-          <span>Llámanos ahora: <strong>+34 692 688 615</strong></span>
+          <span>Llámanos: <strong>+34 692 688 615</strong></span>
         </div>
       </div>
     </section>
-
   </>
 );
 
