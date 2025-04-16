@@ -366,3 +366,20 @@ button:hover {
 .fade-out {
   opacity: 0;
 }
+
+/* Carrusel de categorías */
+@keyframes scrollLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+
+/* Corrección de texto justificado */
+.text-justify {
+  text-align: justify;
+  text-justify: inter-word;
+}

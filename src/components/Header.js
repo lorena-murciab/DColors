@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext"; // Importamos el contexto de autenticación
 import { auth, signOut } from "../firebaseConfig"; // Importamos la función de cierre de sesión
 import "../App.css";
@@ -8,18 +8,37 @@ const Header = () => {
   const { user } = useAuth(); // Estado global del usuario
   const [showSmallHeader, setShowSmallHeader] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const isMounted = useRef(false);
 
   // Determinar si estamos en la ruta Home ("/") o Gallery ("/gallery")
   const isHomeOrGallery = location.pathname === "/" || location.pathname === "/gallery";
 
-  const commonLinks = (
-    <>
-      <Link to="/">Inicio</Link>
-      <Link to="/gallery">Galería</Link>
-      <Link to="/about">Sobre Nosotros</Link>
-      {user && <Link to="/admin">Admin</Link>}
-    </>
-  );  
+  const scrollToSection = (sectionId) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      const smallHeaderHeight = document.querySelector(".small-header")?.offsetHeight || 70;
+      // Aumentamos el margen para mejor visibilidad
+      const targetPosition = section.offsetTop - smallHeaderHeight - 40;
+      
+      window.scrollTo({
+        top: targetPosition,
+        behavior: "smooth"
+      });
+    }
+  };
+
+  // Función para manejar el clic en secciones con scroll
+  const handleSectionClick = (sectionId) => (e) => {
+    e.preventDefault();
+    if (location.pathname === "/") {
+      // Ya estamos en la página principal, solo hacemos scroll
+      scrollToSection(sectionId);
+    } else {
+      // Navegamos a la página principal con hash
+      navigate(`/#${sectionId}`);
+    }
+  };
 
   // Manejo del scroll para mostrar/ocultar el header pequeño
   useEffect(() => {
@@ -40,11 +59,36 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isHomeOrGallery, location]);
 
-  // Restablece el estado si el usuario vuelve a la página principal
+  // Restablece el estado y maneja navegación por hash
   useEffect(() => {
     if (location.pathname === "/") {
-      window.scrollTo(0, 0);
+      // Resetea la posición del scroll al volver a la página principal
+      // SOLO si no hay un hash en la URL
+      if (!location.hash) {
+        window.scrollTo(0, 0);
+      }
+      
       setShowSmallHeader(false);
+      
+      // Manejar el hash al cargar la página
+      if (location.hash) {
+        // Eliminar el # para obtener el ID de la sección
+        const sectionId = location.hash.substring(1);
+        
+        // Esperar a que el DOM esté completamente cargado
+        setTimeout(() => {
+          const section = document.getElementById(sectionId);
+          if (section) {
+            const smallHeaderHeight = document.querySelector(".small-header")?.offsetHeight || 70;
+            const targetPosition = section.offsetTop - smallHeaderHeight - 40;
+            
+            window.scrollTo({
+              top: targetPosition,
+              behavior: "smooth"
+            });
+          }
+        }, 500); // Aumentamos el tiempo para asegurar que todo esté cargado
+      }
     }
   }, [location]);
 
@@ -65,26 +109,26 @@ const Header = () => {
         <div id="large-header" className="large-header">
           <img src="/Dcolors-logo-white-full.png" alt="Logo" className="large-logo" />
           <nav className="nav-row" style={{
-            backgroundColor: 'rgb(38, 38, 38)', // Fondo claro transparente
-            backdropFilter: 'blur(5px)', // Efecto de vidrio esmerilado
+            backgroundColor: 'rgb(38, 38, 38)',
+            backdropFilter: 'blur(5px)',
             padding: '0.8rem 2rem',
             width: '100%',
             marginTop: 10,
-            // Fuente más bonita
-            /*
-            fontFamily: 'Playfair Display, serif',
-            fontSize: '1.2rem',*/
             fontFamily: 'Arial, sans-serif',
             fontSize: '1rem',
-            // borderTop: '1px solid rgba(255, 255, 255, 0.1)' // Línea sutil de separación
+            display: 'flex',
+            justifyContent: 'center',  // Centrar el contenido
+            gap: '2rem'  // Espacio entre elementos
           }}>
             <Link to="/" className="nav-link">INICIO</Link>
             <Link to="/gallery" className="nav-link">GALERÍA</Link>
-            <Link to="/about" className="nav-link">SOBRE NOSOTROS</Link>
-            {user ? (
-              <button onClick={logout} className="logout-btn">Cerrar Sesión</button>
-            ) : (
-              <Link to="/admin" className="nav-link">ADMIN</Link>
+            <Link to="/#about" onClick={handleSectionClick("about")} className="nav-link">SOBRE NOSOTROS</Link>
+            <Link to="/#contact" onClick={handleSectionClick("contact")} className="nav-link">CONTACTO</Link>
+            {user && (
+              <>
+                <Link to="/admin" className="nav-link">ADMINISTRACIÓN</Link>
+                <button onClick={logout} className="logout-btn">CERRAR SESIÓN</button>
+              </>
             )}
           </nav>
         </div>
@@ -94,12 +138,23 @@ const Header = () => {
       {(showSmallHeader || !isHomeOrGallery) && (
         <div className="small-header">
           <img src="/logo_inicio1.png" alt="Logo" className="small-logo" />
-          <nav>
-            {commonLinks}
-            {user ? (
-              <button onClick={logout} className="btn custom-btn m-2">Cerrar Sesión</button>
-            ) : (
-              <Link to="/admin" className="nav-link">ADMIN</Link>
+          <nav style={{
+            flex: 1,
+            display: 'flex',
+            justifyContent: 'center',  // Centrar horizontalmente
+            alignItems: 'center',      // Centrar verticalmente
+            gap: '2rem',               // Espacio entre elementos
+            paddingRight: '80px'       // Compensar el espacio del logo
+          }}>
+            <Link to="/">Inicio</Link>
+            <Link to="/gallery">Galería</Link>
+            <Link to="/#about" onClick={handleSectionClick("about")}>Sobre Nosotros</Link>
+            <Link to="/#contact" onClick={handleSectionClick("contact")}>Contacto</Link>
+            {user && (
+              <>
+                <Link to="/admin">Administración</Link>
+                <button onClick={logout} className="btn custom-btn">Cerrar Sesión</button>
+              </>
             )}
           </nav>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from "react-router-dom"; // Para manejar rutas
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom"; // Para manejar rutas
 import { AuthProvider, useAuth } from "./components/AuthContext";
 import { onAuthStateChanged, auth } from "./firebaseConfig"; // Importar la función de autenticación
 
@@ -123,28 +123,24 @@ const Home = () => (
     </section>
 
     {/* About Section */}
-    <section className="container my-5" id="about">
-      <h2 className="text-center mb-4">Sobre Nosotros</h2>
-      <div className="row">
+    <section className="container my-5 text-center" id="about">
+    <h2 className="mb-3">Sobre Nosotros</h2>
+    <div className="mx-auto mb-4" style={{ width: '80px', height: '2px', background: '#e0a965' }} />
+    <p className="text-muted mb-5">Más de 30 años creando arte con alma</p>
+        <div className="row">
         <div className="col-md-10 offset-md-1">
-          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', textAlign: 'justify' }}>
+          <p className="text-justify mb-4">
             Con más de <strong>30 años de experiencia</strong> en el sector, nos dedicamos a la <strong>creación, exposición y distribución de cuadros artísticos únicos</strong>, elaborados por nuestros propios artistas. Cada obra refleja un estilo personal, auténtico y exclusivo, pensado para emocionar y transformar cualquier espacio.
           </p>
-          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', textAlign: 'justify' }}>
+          <p className="text-justify mb-4">
             Nuestra empresa es <strong>referente nacional</strong> en el mundo del arte decorativo, con presencia en <strong>multitud de tiendas por toda España</strong> y capacidad de distribución en la <strong>Unión Europea</strong>. Gracias a nuestra red y logística, puedes disfrutar de nuestras obras estés donde estés.
           </p>
-          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', textAlign: 'justify' }}>
+          <p className="text-justify mb-4">
             Contamos con un equipo experto en <strong>asesoramiento artístico</strong>, dispuesto a ayudarte a encontrar el cuadro perfecto para tu hogar, negocio o colección. Disponemos de una gran variedad de estilos, formatos y temáticas, con la garantía de que cada pieza es <strong>original, exclusiva y de autor</strong>.
           </p>
-          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', textAlign: 'justify' }}>
+          <p className="text-justify">
             Si buscas <strong>arte con alma</strong>, creado por manos expertas y con distribución nacional e internacional, estás en el lugar adecuado.
           </p>
-
-          <div className="text-center mt-4">
-            <a href="#gallery" className="btn btn-outline-dark px-4 py-2" style={{ fontWeight: 500 }}>
-              Descubre nuestras obras
-            </a>
-          </div>
         </div>
       </div>
     </section>
@@ -155,7 +151,8 @@ const Home = () => (
 
     {/* Contact Section */}
     <section id="contact" className="container my-5 text-center">
-      <h2 className="mb-4">Contáctanos</h2>
+      <h2 className="mb-3">Contáctanos</h2>
+      <div className="mx-auto mb-4" style={{ width: '80px', height: '2px', background: '#e0a965' }} />
       <p className="text-muted">Estamos disponibles para responder cualquier consulta.</p>
 
       <div className="d-flex flex-column flex-md-row justify-content-center gap-4 mt-4">
