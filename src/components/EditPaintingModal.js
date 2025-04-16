@@ -13,7 +13,8 @@ const EditPaintingModal = ({ painting, onClose, onSave, onSaveSuccess }) => {
     author: painting.author || "",
     customSize: "",
     customCategory: "",
-    customAuthor: ""
+    customAuthor: "",
+    points: painting.points || ""
   });
 
   const [availableCategories, setAvailableCategories] = useState([]);
@@ -134,7 +135,8 @@ const EditPaintingModal = ({ painting, onClose, onSave, onSaveSuccess }) => {
         category: editedPainting.category.trim(),
         author: editedPainting.author.trim(),
         sizes: editedPainting.sizes.filter(size => size.trim() !== ""),
-        reference: editedPainting.reference.trim()
+        reference: editedPainting.reference.trim(),
+        points: editedPainting.points.trim(),
       };
 
       await updateDoc(doc(db, "paintings", painting.id), paintingData);
@@ -186,6 +188,16 @@ const EditPaintingModal = ({ painting, onClose, onSave, onSaveSuccess }) => {
               value={editedPainting.reference}
               onChange={(e) => setEditedPainting({ ...editedPainting, reference: e.target.value })}
               isInvalid={validationErrors.reference}
+            />
+          </Form.Group>
+
+          {/* Puntos */}
+          <Form.Group className="mb-3">
+            <Form.Label>Puntos</Form.Label>
+            <Form.Control
+              type="text"
+              value={editedPainting.points}
+              onChange={(e) => setEditedPainting({ ...editedPainting, points: e.target.value })}
             />
           </Form.Group>
 

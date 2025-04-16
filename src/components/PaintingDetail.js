@@ -157,10 +157,21 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
                       </div>
                     </div>
 
-                    <div className={`mb-${isMobile ? '3' : '4'} pt-${isMobile ? '1' : '2'}`}>
+                    <div className={`${isMobile ? 'flex-column' : 'd-flex justify-content-between'} align-items-start mb-${isMobile ? '3' : '4'} pt-${isMobile ? '1' : '2'}`}>
+                    {/* Referencia */}
+                    <div style={{ flex: 1, marginRight: isMobile ? '0' : '1rem', marginBottom: isMobile ? '1rem' : '0' }}>
                       <h6 className="text-uppercase text-muted small mb-2">Referencia</h6>
                       <p className="fs-7">{currentPainting.reference || "—"}</p>
                     </div>
+
+                    {/* Puntos */}
+                    {currentPainting.points && (
+                      <div style={{ flex: 1 }}>
+                        <h6 className="text-uppercase text-muted small mb-2">Puntos</h6>
+                        <p className="fs-7">{currentPainting.points}</p>
+                      </div>
+                    )}
+                  </div>
                   </div>
                 </div>
               </div>
