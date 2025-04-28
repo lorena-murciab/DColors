@@ -311,7 +311,7 @@ const Gallery = () => {
                   src={getMainImage(painting)}
                   className="w-100 rounded"
                   alt={painting.title}
-                  style={{ objectFit: "cover", height: isMobile ? "180px" : "250px" }}
+                  style={{ objectFit: "contain", height: isMobile ? "180px" : "250px" }}
                 />
                 <div className={`overlay p-${isMobile ? '2' : '3'}`}>
                   <h5 className={`title mb-1 ${isMobile ? 'fs-6 text-truncate' : ''}`}>{painting.title}</h5>
