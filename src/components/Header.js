@@ -28,6 +28,15 @@ const Header = () => {
     }
   };
 
+  // Función para hacer scroll al inicio de la página
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+  
+
   // Función para manejar el clic en secciones con scroll
   const handleSectionClick = (sectionId) => (e) => {
     e.preventDefault();
@@ -118,7 +127,18 @@ const Header = () => {
       {isHomeOrGallery && (
         <div id="large-header" className="large-header">
           <div className="d-flex justify-content-center">
+          <Link
+            to="/"
+            onClick={(e) => {
+              if (location.pathname === "/") {
+                e.preventDefault();
+                scrollToTop();
+              }
+            }}
+          >
             <img src="/Dcolors-logo-white-full.png" alt="Logo" className="large-logo img-fluid" />
+          </Link>
+
           </div>
           
           {/* Versión escritorio del menú principal */}
@@ -189,7 +209,18 @@ const Header = () => {
       {(showSmallHeader || !isHomeOrGallery) && (
         <div className="small-header">
           <div className="d-flex align-items-center">
+          <Link
+            to="/"
+            onClick={(e) => {
+              if (location.pathname === "/") {
+                e.preventDefault();
+                scrollToTop();
+              }
+            }}
+          >
             <img src="/logo_inicio1.png" alt="Logo" className="small-logo" />
+          </Link>
+
             
             {/* Botón de menú móvil */}
             <button 
