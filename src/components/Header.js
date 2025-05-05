@@ -152,12 +152,12 @@ const Header = () => {
             fontSize: '1rem',
             display: 'flex',
             justifyContent: 'center',
-            gap: '2rem'
+            gap: '3rem'
           }}>
             <Link to="/" className="nav-link">INICIO</Link>
             <Link to="/gallery" className="nav-link">GALERÍA</Link>
             <Link to="/#about" onClick={handleSectionClick("about")} className="nav-link">SOBRE NOSOTROS</Link>
-            <Link to="/#contact" onClick={handleSectionClick("contact")} className="nav-link">CONTACTO</Link>
+            {/*<Link to="/#contact" onClick={handleSectionClick("contact")} className="nav-link">CONTACTO</Link>*/}
             {user && (
               <>
                 <Link to="/admin" className="nav-link">ADMINISTRACIÓN</Link>
@@ -189,10 +189,10 @@ const Header = () => {
                   handleSectionClick("about")(e);
                   setMenuOpen(false);
                 }} className="nav-link">SOBRE NOSOTROS</Link>
-                <Link to="/#contact" onClick={(e) => {
+                {/*<Link to="/#contact" onClick={(e) => {
                   handleSectionClick("contact")(e);
                   setMenuOpen(false);
-                }} className="nav-link">CONTACTO</Link>
+                }} className="nav-link">CONTACTO</Link> */}
                 {user && (
                   <>
                     <Link to="/admin" className="nav-link" onClick={() => setMenuOpen(false)}>ADMINISTRACIÓN</Link>
@@ -243,8 +243,8 @@ const Header = () => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            gap: '2rem',
-            paddingRight: '80px'
+            gap: '4rem',
+            paddingRight: '220px'
           }}>
             <Link to="/" className="small-nav-link">Inicio</Link>
             <Link to="/gallery" className="small-nav-link">Galería</Link>
@@ -255,13 +255,13 @@ const Header = () => {
             >
               Sobre Nosotros
             </Link>
-            <Link 
+            {/*<Link 
               to="/#contact" 
               onClick={handleSectionClick("contact")} 
               className="small-nav-link"
             >
               Contacto
-            </Link>
+            </Link> */}
             {user && (
               <>
                 <Link to="/admin" className="small-nav-link">Administración</Link>
@@ -294,7 +294,7 @@ const Header = () => {
                 >
                   Sobre Nosotros
                 </Link>
-                <Link 
+                {/*<Link 
                   to="/#contact" 
                   onClick={(e) => {
                     handleSectionClick("contact")(e);
@@ -303,7 +303,7 @@ const Header = () => {
                   className="small-nav-link text-center py-2"
                 >
                   Contacto
-                </Link>
+                </Link>*/} 
                 {user && (
                   <>
                     <Link to="/admin" className="small-nav-link text-center py-2" onClick={() => setMenuOpen(false)}>Administración</Link>

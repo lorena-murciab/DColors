@@ -16,7 +16,7 @@ import "./App.css";
 
 // Iconos
 import { IoIosArrowUp } from "react-icons/io";
-import { FaWhatsapp, FaPhone } from "react-icons/fa"; // Importar iconos
+// import { FaWhatsapp, FaPhone } from "react-icons/fa"; // Importar iconos
 import CategoriesPreview from "./components/CategoriesPreview";
 
 
@@ -171,26 +171,25 @@ const Home = () => (
     <CategoriesPreview />
 
     {/* Contact Section */}
+    {/* 
     <section id="contact" className="container my-4 my-md-5 px-3 px-md-0 text-center">
       <h2 className="mb-3">Contáctanos</h2>
       <div className="mx-auto mb-4" style={{ width: '80px', height: '2px', background: '#e0a965' }} />
       <p className="text-muted">Estamos disponibles para responder cualquier consulta.</p>
 
       <div className="d-flex flex-column flex-md-row justify-content-center gap-3 gap-md-4 mt-4">
-        {/* WhatsApp Contact */}
         <a href="https://wa.me/+34692688615" target="_blank" rel="noopener noreferrer"
           className="text-dark text-decoration-none d-flex align-items-center justify-content-center gap-2 mb-3 mb-md-0">
           <FaWhatsapp size={20} />
           <span>Escríbenos por WhatsApp</span>
         </a>
 
-        {/* Teléfono Contact */}
         <div className="text-dark d-flex align-items-center justify-content-center gap-2">
           <FaPhone size={20} />
           <span>Llámanos: <strong>+34 692 688 615</strong></span>
         </div>
       </div>
-    </section>
+    </section> */}
   </>
 );
 

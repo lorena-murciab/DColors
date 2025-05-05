@@ -4,7 +4,7 @@ import { FaPencilAlt } from "react-icons/fa";
 import { onAuthStateChanged, auth } from "../firebaseConfig";
 import EditPaintingModal from "./EditPaintingModal";
 
-import { FaWhatsapp } from "react-icons/fa";
+// import { FaWhatsapp } from "react-icons/fa";
 import { FaTimes } from "react-icons/fa"; // Added for visible close icon
 
 const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
@@ -189,7 +189,9 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
         />
       )}
 
+
       {/* Botón flotante de WhatsApp */}
+      {/*
       <a
         href={`https://wa.me/+34692688615?text=${encodeURIComponent(`Hola, estoy interesado en el cuadro "${currentPainting.title}" con referencia "${currentPainting.reference}.`)} `}
         target="_blank"
@@ -206,7 +208,7 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
       >
         <FaWhatsapp size={isMobile ? 18 : 20} />
         <span>{isMobile ? "Consultar" : "Contáctanos"}</span>
-      </a>
+      </a> */}
     </>
   );
 };
