@@ -47,6 +47,13 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
     setShowEditModal(false);
   };
 
+  // Cerrar el modal de visualización al hacer clic fuera de él
+  const handleClose = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
     <>
       {/* Modal principal de visualización */}
@@ -55,7 +62,8 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
         backgroundColor: "rgba(0,0,0,0.9)",
         backdropFilter: "blur(8px)",
         zIndex: 1040
-      }}>
+      }}
+        onClick={handleClose}>
         <div className="modal-dialog modal-xl" style={{ maxWidth: isMobile ? "100vw" : "95vw", margin: isMobile ? "0" : "1.75rem auto" }}>
           <div className="modal-content border-0 bg-transparent">
             {/* Botón de cierre - Mejorado para móviles */}
@@ -79,7 +87,7 @@ const PaintingDetail = ({ painting, onClose, onPaintingUpdated }) => {
                 {/* Galería de imágenes */}
                 <div className={isMobile ? "col-12" : "col-lg-8"}>
                   {currentPainting.images?.length > 0 ? (
-                    <Carousel>
+                    <Carousel controls={currentPainting.images?.length > 1}>
                       {currentPainting.images.map((img, index) => (
                         <Carousel.Item key={index}>
                           <img
