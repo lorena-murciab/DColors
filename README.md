@@ -1,12 +1,12 @@
 # DColors - Galería Virtual de Cuadros
 
 <div align="center">
-  <img src="./img/logooo.jpeg" alt="Logo DColors" width="200">
+  <img src="./public/dcolors-fondo-horizontal.jpg" alt="Logo DColors Cuadros" width="200">
 </div>
 
 ## 📋 Descripción del Proyecto
 
-DColors es una galería virtual desarrollada para una empresa que se dedica a la venta de cuadros. Esta plataforma funciona como un catálogo digital que permite a la empresa exponer sus productos a las tiendas afiliadas, facilitando la visualización del inventario disponible sin necesidad de desplazamientos físicos.
+DColors es una galería virtual desarrollada para una empresa que se dedica a la venta de cuadros. Esta plataforma funciona como un catálogo digital que permite a la empresa exponer sus productos a las tiendas afiliadas, facilitando la actualización y visualización del inventario disponible sin necesidad de desplazamientos físicos.
 
 ### Objetivo Principal
 Crear un espacio digital donde los distribuidores y tiendas afiliadas puedan explorar la colección completa de cuadros disponibles, filtrar por categorías y obtener información detallada de cada pieza.
@@ -17,7 +17,7 @@ Crear un espacio digital donde los distribuidores y tiendas afiliadas puedan exp
 - **Filtrado por Categorías**: Permite a los usuarios filtrar cuadros por temáticas
 - **Visualización Detallada**: Cada cuadro cuenta con su propia página de detalles
 - **Navegación Intuitiva**: Interfaz de usuario simple y efectiva
-- **Formulario de Contacto**: Facilita la comunicación directa con la empresa
+- **Gestión Administrativa**: Administración de cuadros disponibles a cargo del empresario.
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -75,7 +75,6 @@ git clone https://github.com/lorena-murciab/DColors.git
 
 - Implementar sistema de autenticación para tiendas afiliadas
 - Añadir funcionalidad de solicitud de pedidos directamente desde la plataforma
-- Integración con sistemas de gestión de inventario
 - Añadir más categorías y opciones de filtrado
 
 ## 👩‍💻 Desarrollado por
@@ -91,7 +90,7 @@ Este proyecto está bajo la Licencia [MIT](https://opensource.org/licenses/MIT) 
 ---
 
 <div align="center">
-  <p>© 2023 DColors. Todos los derechos reservados.</p>
+  <p>© 2025 DColors. Todos los derechos reservados.</p>
 </div>
 
 ### `npm run build` fails to minify
