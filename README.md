@@ -36,10 +36,14 @@ Crear un espacio digital donde los distribuidores y tiendas afiliadas puedan exp
   <p><em>Página principal</em></p>
 </div>
 
+<p align="center">Landing page de la web, donde destacan las últimas novedades añadidas.</p>
+
 <div align="center">
   <img src="./public/screenshots/about-us.png" alt="Sobre nosotros" width="600">
   <p><em>Sobre nosotros</em></p>
 </div>
+
+Apartado sobre la empresa
 
 <div align="center">
   <img src="./public/screenshots/categories.png" alt="Carrusel de categorías" width="600">
