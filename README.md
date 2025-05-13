@@ -1,7 +1,7 @@
 # DColors - Galería Virtual de Cuadros
 
 <div align="center">
-  <img src="./public/dcolors-fondo-horizontal.jpg" alt="Logo DColors Cuadros" width="200">
+  <img src="./public/dcolors-fondo-horizontal.jpg" alt="Logo DColors Cuadros" width="500">
 </div>
 
 ## 📋 Descripción del Proyecto
@@ -27,12 +27,48 @@ Crear un espacio digital donde los distribuidores y tiendas afiliadas puedan exp
 - **Bootstrap**: Framework para el diseño responsive
 - **Font Awesome**: Iconografía
 - **Google Fonts**: Tipografías personalizadas
+- **Firebase**: Base de datos y autentificación
 
 ## 🖼️ Capturas de Pantalla
 
 <div align="center">
-  <img src="./screenshots/home.png" alt="Página principal" width="600">
-  <p><em>Página principal de la galería</em></p>
+  <img src="./public/screenshots/home.png" alt="Página principal" width="600">
+  <p><em>Página principal</em></p>
+</div>
+
+<div align="center">
+  <img src="./public/screenshots/about-us.png" alt="Sobre nosotros" width="600">
+  <p><em>Sobre nosotros</em></p>
+</div>
+
+<div align="center">
+  <img src="./public/screenshots/categories.png" alt="Carrusel de categorías" width="600">
+  <p><em>Categorías</em></p>
+</div>
+
+<div align="center">
+  <img src="./public/screenshots/gallery.png" alt="Galería" width="600">
+  <p><em>Galería de cuadros</em></p>
+</div>
+
+<div align="center">
+  <img src="./public/screenshots/detail.png" alt="Detalle cuadro" width="600">
+  <p><em>Vista de características de un cuadro</em></p>
+</div>
+
+<div align="center">
+  <img src="./public/screenshots/login.png" alt="Login" width="600">
+  <p><em>Página de login para el administrador</em></p>
+</div>
+
+<div align="center">
+  <img src="./public/screenshots/administration.png" alt="Administración" width="600">
+  <p><em>Página de administración</em></p>
+</div>
+
+<div align="center">
+  <img src="./public/screenshots/edit.png" alt="Edición" width="600">
+  <p><em>Página de edición para administrador</em></p>
 </div>
 
 ## 📁 Estructura del Proyecto
