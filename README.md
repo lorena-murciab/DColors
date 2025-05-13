@@ -1,69 +1,98 @@
-# Getting Started with Create React App
+# DColors - Galería Virtual de Cuadros
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<div align="center">
+  <img src="./img/logooo.jpeg" alt="Logo DColors" width="200">
+</div>
 
-## Available Scripts
+## 📋 Descripción del Proyecto
 
-In the project directory, you can run:
+DColors es una galería virtual desarrollada para una empresa que se dedica a la venta de cuadros. Esta plataforma funciona como un catálogo digital que permite a la empresa exponer sus productos a las tiendas afiliadas, facilitando la visualización del inventario disponible sin necesidad de desplazamientos físicos.
 
-### `npm start`
+### Objetivo Principal
+Crear un espacio digital donde los distribuidores y tiendas afiliadas puedan explorar la colección completa de cuadros disponibles, filtrar por categorías y obtener información detallada de cada pieza.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🚀 Características Principales
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Galería Responsive**: Diseño adaptable que funciona en dispositivos móviles, tablets y escritorio
+- **Filtrado por Categorías**: Permite a los usuarios filtrar cuadros por temáticas
+- **Visualización Detallada**: Cada cuadro cuenta con su propia página de detalles
+- **Navegación Intuitiva**: Interfaz de usuario simple y efectiva
+- **Formulario de Contacto**: Facilita la comunicación directa con la empresa
 
-### `npm test`
+## 🛠️ Tecnologías Utilizadas
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **HTML5**: Estructura de la página
+- **CSS3**: Estilos y diseño responsive
+- **JavaScript**: Funcionalidades interactivas y dinámicas
+- **Bootstrap**: Framework para el diseño responsive
+- **Font Awesome**: Iconografía
+- **Google Fonts**: Tipografías personalizadas
 
-### `npm run build`
+## 🖼️ Capturas de Pantalla
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+<div align="center">
+  <img src="./screenshots/home.png" alt="Página principal" width="600">
+  <p><em>Página principal de la galería</em></p>
+</div>
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 📁 Estructura del Proyecto
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+DColors/
+│
+├── index.html             # Página principal
+├── cuadros.html           # Galería de cuadros
+├── contacto.html          # Formulario de contacto
+├── sobrenosotros.html     # Información de la empresa
+│
+├── css/                   # Archivos de estilos
+│   ├── estilos.css        # Estilos generales
+│   └── normalize.css      # Normalización de estilos
+│
+├── js/                    # Archivos JavaScript
+│   └── script.js          # Funcionalidades interactivas
+│
+├── img/                   # Imágenes y recursos gráficos
+│   ├── cuadros/           # Imágenes de los cuadros
+│   ├── banner/            # Imágenes para banners
+│   └── logooo.jpeg        # Logo de la empresa
+│
+└── screenshots/           # Capturas de pantalla para documentación
+```
 
-### `npm run eject`
+## 🚀 Instalación y Uso
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. Clona este repositorio:
+```bash
+git clone https://github.com/lorena-murciab/DColors.git
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+2. Abre el archivo `index.html` en tu navegador preferido.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+3. Para ver la galería completa, navega a la sección "Cuadros" desde el menú principal.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 🔮 Planes Futuros
 
-## Learn More
+- Implementar sistema de autenticación para tiendas afiliadas
+- Añadir funcionalidad de solicitud de pedidos directamente desde la plataforma
+- Integración con sistemas de gestión de inventario
+- Añadir más categorías y opciones de filtrado
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 👩‍💻 Desarrollado por
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Lorena Murcia - Desarrolladora Web
+- [LinkedIn](https://www.linkedin.com/in/tu-perfil/)
+- [GitHub](https://github.com/lorena-murciab)
 
-### Code Splitting
+## 📄 Licencia
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Este proyecto está bajo la Licencia [MIT](https://opensource.org/licenses/MIT) - consulta el archivo LICENSE para más detalles.
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+<div align="center">
+  <p>© 2023 DColors. Todos los derechos reservados.</p>
+</div>
 
 ### `npm run build` fails to minify
 
