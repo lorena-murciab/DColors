@@ -1,17 +1,18 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Configuración de Firebase con claves API
+src/firebaseConfig.js
 
-# dependencies
+# Dependencias
 /node_modules
 /.pnp
 .pnp.js
 
-# testing
+# Testing
 /coverage
 
-# production
+# Producción
 /build
 
-# misc
+# Miscelánea
 .DS_Store
 .env.local
 .env.development.local
@@ -21,3 +22,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
