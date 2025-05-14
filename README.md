@@ -127,6 +127,14 @@ DColors/
     |─ screenshots                      # Capturas de pantalla de la web
 ```
 
+## 📊 Diagrama del Proyecto
+
+<div align="center">
+  <img src="./public/screenshots/diagram.png" alt="Diagrama del proyecto" width="600">
+  <p><em>GitDiagram</em></p>
+</div>
+
+
 ## 🚀 Instalación y Uso
 
 1. Clona este repositorio:
