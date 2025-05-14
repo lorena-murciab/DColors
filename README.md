@@ -184,7 +184,7 @@ Lorena Murcia - Desarrolladora Web
 
 ## 📄 Propiedad y Derechos
 
-Este proyecto es propiedad de DColors y Lorena Murcia. El código y diseño están alojados en Hostinger y no están disponibles para su uso, redistribución o modificación sin permiso explícito.
+Este proyecto es propiedad de DColors y Lorena Murcia. El código y diseño no están disponibles para su redistribución sin permiso explícito.
 
 <div align="center">
   <p>© 2025 DColors. Todos los derechos reservados.</p>
